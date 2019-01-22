@@ -1,0 +1,42 @@
+packloadall
+let mapleader = ","
+
+syntax on
+set nowrap
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
+set expandtab
+set autoindent
+set number
+set showcmd
+set cursorline
+filetype plugin indent on
+set wildmenu
+set lazyredraw
+set showmatch
+set incsearch
+set hlsearch
+set foldenable
+set foldlevelstart=10
+set foldnestmax=10
+set foldmethod=indent
+
+set background=dark
+colorscheme palenight
+let g:lightline = { 'colorscheme': 'palenight' }
+let g:palenight_terminal_italics = 1
+
+let g:NERDTreeNodeDelimiter = "\u00a0"
+let g:NERDTreeWinPos = "right"
+let NERDTreeShowHidden = 1
+
+nnoremap <space> za
+nnoremap <leader><space> :nohlsearch<CR>
+nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+nnoremap <leader>sv :source $MYVIMRC<cr>
+map <leader>o :BufExplorer<cr>
+map <leader>f :MRU<CR>
+map <leader>z :Goyo<cr>
+
+autocmd BufWritePre * %s/\s\+$//e
