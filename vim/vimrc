@@ -32,6 +32,7 @@ colorscheme molokai
 let g:NERDTreeNodeDelimiter = "\u00a0"
 let g:NERDTreeWinPos = "right"
 let NERDTreeShowHidden = 1
+let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
 
 nnoremap <space> za
 nnoremap <leader><space> :nohlsearch<CR>
@@ -48,3 +49,8 @@ augroup vagrant
   au!
   au BufRead,BufNewFile Vagrantfile set filetype=ruby
 augroup END
+
+nnoremap =j :%!python -m json.tool<CR>
+nnoremap <leader>F :CtrlSF<space>
+nnoremap tt :NERDTreeToggle<CR>
+nnoremap tf :NERDTreeFind<CR>
