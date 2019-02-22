@@ -35,7 +35,7 @@ syn keyword     goType           int8 int16 int32 int64
 syn keyword     goType           float32 float64
 syn keyword     goType           float32 float64
 syn keyword     goType           byte
-syn keyword     goType           uint int float uintptr string
+syn keyword     goType           uint int float uintptr string bool
 
 syn keyword     goConcurrent     chan go
 
@@ -45,7 +45,7 @@ syn keyword     goBoolean        true false
 syn keyword     goConstant       iota
 
 " Builtin functions
-syn keyword     goBif            len make new close closed cap map
+syn keyword     goBif            len make new close closed cap map delete
 
 " According to the language specification it is not garanteed to stay in the
 " language. See http://golang.org/doc/go_spec.html#Bootstrapping
