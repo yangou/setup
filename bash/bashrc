@@ -8,4 +8,4 @@ export GIT_PROMPT_THEME=Single_line_Ubuntu_Minimalist
 source ~/.bash-git-prompt/gitprompt.sh
 
 # use vi editing mode in bash
-set -o vi
+# set -o vi
