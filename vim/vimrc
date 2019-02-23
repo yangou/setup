@@ -62,3 +62,5 @@ inoremap <C-j> <ESC>:m .+1<CR>==gi
 inoremap <C-k> <ESC>:m .-2<CR>==gi
 vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
+vnoremap aa <ESC>gg0vG$
+vnoremap al <ESC>0v$
