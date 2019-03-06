@@ -64,3 +64,5 @@ vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 vnoremap aa <ESC>gg0vG$
 vnoremap al <ESC>0v$
+nnoremap <leader>G :GoImports<CR>
+nnoremap <leader>g :GoImport<SPACE>
