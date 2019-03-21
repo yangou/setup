@@ -50,6 +50,21 @@ augroup vagrant
   au BufRead,BufNewFile Vagrantfile set filetype=ruby
 augroup END
 
+augroup kubeconfig
+  au!
+  autocmd BufNewFile,BufRead *.kubeconfig set syntax=yaml
+augroup END
+
+augroup systemd
+  au!
+  autocmd BufNewFile,BufRead *.service set syntax=systemd
+augroup END
+
+augroup env
+  au!
+  autocmd BufNewFile,BufRead *.env set syntax=sh
+augroup END
+
 nnoremap =j :%!python -m json.tool<CR>
 nnoremap <leader>F :CtrlSF<SPACE>
 nnoremap tt :NERDTreeToggle<CR>
@@ -63,6 +78,5 @@ inoremap <C-k> <ESC>:m .-2<CR>==gi
 vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 vnoremap aa <ESC>gg0vG$
-vnoremap al <ESC>0v$
 nnoremap <leader>G :GoImports<CR>
 nnoremap <leader>g :GoImport<SPACE>
