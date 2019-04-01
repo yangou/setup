@@ -3,8 +3,8 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
-brew install ack tmux ctags bash-completion csshx jq tree docker watch colordiff
-brew cask install virtualbox vagrant vagrant-manager iterm2
+brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff
+brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker
 
 # tmux
 rm -rf ~/.tmux.conf && rm -rf ~/.tmux.conf.local
