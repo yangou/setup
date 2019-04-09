@@ -81,3 +81,5 @@ vnoremap aa <ESC>gg0vG$
 nnoremap <leader>G :GoImports<CR>
 nnoremap <leader>g :GoImport<SPACE>
 nnoremap == ggVG=
+
+set rtp+=/usr/local/opt/fzf

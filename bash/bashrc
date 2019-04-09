@@ -9,3 +9,5 @@ source ~/.bash-git-prompt/gitprompt.sh
 
 # use vi editing mode in bash
 # set -o vi
+
+export FZF_DEFAULT_OPS="--extended"

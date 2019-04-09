@@ -3,13 +3,11 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
-brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff
+brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf
 brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom
 
-# tmux
-rm -rf ~/.tmux.conf && rm -rf ~/.tmux.conf.local
-ln -s $DIR/tmux/tmux.conf ~/.tmux.conf
-ln -s $DIR/tmux/tmux.conf.local ~/.tmux.conf.local
+# install fzf
+$(brew --prefix)/opt/fzf/install --all
 
 # vim
 rm -rf ~/.vim && ln -s $DIR/vim ~/.vim
@@ -17,6 +15,11 @@ for package in `find ~/.vim/pack/*/start/*/doc -type d`
 do
   vim -c "helptags ${package} | q"
 done
+
+# tmux
+rm -rf ~/.tmux.conf && rm -rf ~/.tmux.conf.local
+ln -s $DIR/tmux/tmux.conf ~/.tmux.conf
+ln -s $DIR/tmux/tmux.conf.local ~/.tmux.conf.local
 
 # git
 rm -rf ~/.bash-git-prompt && ln -s $DIR/bash-git-prompt ~/.bash-git-prompt
