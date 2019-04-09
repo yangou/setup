@@ -3,7 +3,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
-brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf
+brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep
 brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom
 
 # install fzf
