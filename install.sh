@@ -30,5 +30,8 @@ git config --global user.name 'Yang Ou'
 git config --global user.email 'ouyang871223@gmail.com'
 
 # update bashrc
+line="source ~/.bashrc"
+grep -qF -- "$line" ~/.bash_profile || echo "$line" >> ~/.bash_profile
+
 line="source $DIR/bash/bashrc"
 grep -qF -- "$line" ~/.bashrc || echo "$line" >> ~/.bashrc
