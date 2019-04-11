@@ -1,8 +1,16 @@
 #! /bin/bash
 
-USER='Yang Ou'
-EMAIL=ouyang871223@gmail.com
-HOSTNAME=blueshift
+printf 'user: '
+read -r USER
+
+printf 'email: '
+read -r EMAIL
+
+printf 'hostname: '
+read -r HOSTNAME
+
+# install homebrew
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
