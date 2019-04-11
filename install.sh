@@ -1,10 +1,14 @@
 #! /bin/bash
 
+USER='Yang Ou'
+EMAIL=ouyang871223@gmail.com
+HOSTNAME=blueshift
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
 brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep
-brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom
+brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom flux
 
 # install fzf
 $(brew --prefix)/opt/fzf/install --all
@@ -29,8 +33,8 @@ git config --global alias.cp cherry-pick
 git config --global alias.cm commit
 git config --global alias.df diff
 git config --global alias.st status
-git config --global user.name 'Yang Ou'
-git config --global user.email 'ouyang871223@gmail.com'
+git config --global user.name "$USER"
+git config --global user.email "$EMAIL"
 
 # update bashrc
 line="source ~/.bashrc"
@@ -41,3 +45,9 @@ grep -qF -- "$line" ~/.bashrc || echo "$line" >> ~/.bashrc
 
 # install fonts
 cp $DIR/fonts/* ~/Library/Fonts/
+
+# set hostnames
+sudo scutil --set HostName $HOSTNAME
+sudo scutil --set LocalHostName $HOSTNAME.local
+sudo scutil --set ComputerName $HOSTNAME
+sudo dscacheutil -flushcache
