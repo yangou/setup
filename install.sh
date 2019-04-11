@@ -48,6 +48,9 @@ cp $DIR/fonts/* ~/Library/Fonts/
 
 # set hostnames
 sudo scutil --set HostName $HOSTNAME
-sudo scutil --set LocalHostName $HOSTNAME.local
+sudo scutil --set LocalHostName $HOSTNAME
 sudo scutil --set ComputerName $HOSTNAME
 sudo dscacheutil -flushcache
+
+# restart
+sudo reboot
