@@ -16,7 +16,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
 brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep
-brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom flux
+brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom flux slack wechat dropbox google-chrome
 
 # install fzf
 $(brew --prefix)/opt/fzf/install --all
