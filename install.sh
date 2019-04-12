@@ -15,7 +15,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 # packages
-brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep asdf \
+brew reinstall git ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep asdf \
   coreutils automake autoconf openssl libyaml readline libxslt libtool unixodbc unzip curl
 brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom flux slack wechat dropbox google-chrome
 
