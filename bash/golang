@@ -1,0 +1,2 @@
+eval $(go env | grep GOPATH)
+export PATH="$PATH:$GOPATH/bin"

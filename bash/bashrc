@@ -1,4 +1,3 @@
-# START SETUP
 export PS1='\[\e[00m\]\u\[\e[00;33m\]@\h\[\e[00m\]\[\e[00;31m\]\[\e[00m\]:\[\e[01;36m\]\w\[\e[00m\]\$ '
 export EDITOR='vim'
 alias ll='ls -lha'
@@ -20,4 +19,5 @@ fi
 
 . $(brew --prefix asdf)/asdf.sh
 . $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
-# END SETUP
+
+. ~/.asdf/plugins/java/asdf-java-wrapper.bash

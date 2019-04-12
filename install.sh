@@ -9,10 +9,10 @@ read -r EMAIL
 printf 'hostname: '
 read -r HOSTNAME
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 # install homebrew
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
 brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep asdf \
@@ -24,8 +24,9 @@ $(brew --prefix)/opt/fzf/install --all
 
 # install asdf plugins
 asdf plugin-add golang
-asdf plugin-add elixir
+asdf plugin-add java
 asdf plugin-add erlang
+asdf plugin-add elixir
 asdf plugin-add ruby
 asdf plugin-add rebar
 
@@ -53,8 +54,10 @@ git config --global user.name "$USER"
 git config --global user.email "$EMAIL"
 
 # configure bash
+touch ~/.bash_profile
 line="source ~/.bashrc"
 grep -qF -- "$line" ~/.bash_profile || echo "$line" >> ~/.bash_profile
+touch ~/.bashrc
 line="source $DIR/bash/bashrc"
 grep -qF -- "$line" ~/.bashrc || echo "$line" >> ~/.bashrc
 
