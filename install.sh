@@ -52,9 +52,11 @@ git config --global alias.st status
 git config --global user.name "$USER"
 git config --global user.email "$EMAIL"
 
-# update bash
-cat $DIR/bash/bash_profile >> ~/.bash_profile
-cat $DIR/bash/bashrc >> ~/.bashrc
+# configure bash
+line="source ~/.bashrc"
+grep -qF -- "$line" ~/.bash_profile || echo "$line" >> ~/.bash_profile
+line="source $DIR/bash/bashrc"
+grep -qF -- "$line" ~/.bashrc || echo "$line" >> ~/.bashrc
 
 # install fonts
 cp $DIR/fonts/* ~/Library/Fonts/
