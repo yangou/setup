@@ -12,13 +12,11 @@ read -r HOSTNAME
 # install homebrew
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-# install gvm
-bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
-brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep
+brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep asdf \
+  coreutils automake autoconf openssl libyaml readline libxslt libtool unixodbc unzip curl
 brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom flux slack wechat dropbox google-chrome
 
 # install fzf
@@ -47,12 +45,9 @@ git config --global alias.st status
 git config --global user.name "$USER"
 git config --global user.email "$EMAIL"
 
-# update bashrc
-line="source ~/.bashrc"
-grep -qF -- "$line" ~/.bash_profile || echo "$line" >> ~/.bash_profile
-
-line="source $DIR/bash/bashrc"
-grep -qF -- "$line" ~/.bashrc || echo "$line" >> ~/.bashrc
+# update bash
+cat $DIR/bash/bash_profile >> ~/.bash_profile
+cat $DIR/bash/bashrc >> ~/.bashrc
 
 # install fonts
 cp $DIR/fonts/* ~/Library/Fonts/

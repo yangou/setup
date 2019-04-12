@@ -1,3 +1,4 @@
+# START SETUP
 export PS1='\[\e[00m\]\u\[\e[00;33m\]@\h\[\e[00m\]\[\e[00;31m\]\[\e[00m\]:\[\e[01;36m\]\w\[\e[00m\]\$ '
 export EDITOR='vim'
 alias ll='ls -lha'
@@ -11,3 +12,12 @@ source ~/.bash-git-prompt/gitprompt.sh
 # set -o vi
 
 export FZF_DEFAULT_OPS="--extended"
+
+# bash-completion
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+    . $(brew --prefix)/etc/bash_completion
+fi
+
+. $(brew --prefix asdf)/asdf.sh
+. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
+# END SETUP
