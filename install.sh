@@ -19,8 +19,15 @@ brew reinstall ack tmux ctags bash-completion csshx jq tree watch colordiff fzf 
   coreutils automake autoconf openssl libyaml readline libxslt libtool unixodbc unzip curl
 brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom flux slack wechat dropbox google-chrome
 
-# install fzf
+# install fzf plugins
 $(brew --prefix)/opt/fzf/install --all
+
+# install asdf plugins
+asdf plugin-add golang
+asdf plugin-add elixir
+asdf plugin-add erlang
+asdf plugin-add ruby
+asdf plugin-add rebar
 
 # vim
 rm -rf ~/.vim && ln -s $DIR/vim ~/.vim
