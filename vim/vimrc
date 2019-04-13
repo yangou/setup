@@ -33,6 +33,10 @@ let g:NERDTreeNodeDelimiter = "\u00a0"
 let g:NERDTreeWinPos = "right"
 let NERDTreeShowHidden = 1
 
+" let g:mix_format_on_save = 1
+let g:mix_format_silent_errors = 1
+let g:mix_format_options = '--check-equivalent'
+
 nnoremap <SPACE> za
 nnoremap <leader><SPACE> :nohlsearch<CR>
 nnoremap <leader>ev :vsplit $MYVIMRC<CR>
@@ -65,6 +69,7 @@ augroup env
 augroup END
 
 nnoremap =j :%!python -m json.tool<CR>
+nnoremap =f :MixFormat<CR>
 nnoremap <leader>F :CtrlSF<SPACE>
 nnoremap tt :NERDTreeToggle<CR>
 nnoremap tf :NERDTreeFind<CR>
