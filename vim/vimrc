@@ -36,6 +36,7 @@ let NERDTreeShowHidden = 1
 " let g:mix_format_on_save = 1
 let g:mix_format_silent_errors = 1
 let g:mix_format_options = '--check-equivalent'
+let g:multi_cursor_exit_from_insert_mode = 0
 
 nnoremap <SPACE> za
 nnoremap <leader><SPACE> :nohlsearch<CR>
@@ -87,3 +88,5 @@ nnoremap <leader>g :GoImport<SPACE>
 nnoremap == ggVG=
 
 set rtp+=/usr/local/opt/fzf
+nnoremap <C-p> :Files<CR>
+nnoremap <C-f> :Rg<SPACE>
