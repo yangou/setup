@@ -1,13 +1,10 @@
-asdf install golang 1.11.9
-asdf global golang 1.11.9
+asdf install golang 1.12.4
+asdf global golang 1.12.4
 
-go get -u github.com/mdempsky/gocode
-go get -u github.com/golang/lint/golint
-go get -u golang.org/x/tools/cmd/guru
-go get -u golang.org/x/tools/cmd/goimports
-go get -u golang.org/x/tools/cmd/gorename
-go get -u github.com/tools/godep
-go get -u github.com/golang/dep/cmd/dep
+brew tap alecthomas/homebrew-tap
+brew reinstall gometalinter
+
+vim +GoInstallBinaries +qall
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
