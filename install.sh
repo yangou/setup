@@ -16,7 +16,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
 brew reinstall telnet git ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep asdf \
-  coreutils automake autoconf openssl libyaml readline libxslt libtool unixodbc unzip curl
+  coreutils automake autoconf openssl libyaml readline libxslt libtool unixodbc unzip curl gnupg
 brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom flux slack wechat dropbox google-chrome divvy
 
 # install fzf plugins
@@ -29,6 +29,7 @@ asdf plugin-add erlang
 asdf plugin-add elixir
 asdf plugin-add ruby
 asdf plugin-add rebar
+asdf plugin-add nodejs
 
 # vim
 rm -rf ~/.vim && ln -s $DIR/vim ~/.vim
