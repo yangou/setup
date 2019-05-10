@@ -31,6 +31,10 @@ asdf plugin-add ruby
 asdf plugin-add rebar
 asdf plugin-add nodejs
 
+# install vagrant plugins
+vagrant plugin install landrush
+vagrant plugin install vagrant-hosts
+
 # vim
 rm -rf ~/.vim && ln -s $DIR/vim ~/.vim
 for package in `find ~/.vim/pack/*/start/*/doc -type d`
