@@ -94,3 +94,5 @@ nnoremap <C-p> :Files<CR>
 nnoremap <C-f> :Rg<SPACE>
 nnoremap "" bi"<ESC>lea"<ESC>
 nnoremap '' bi'<ESC>lea'<ESC>
+
+nnoremap <leader>w :w<CR>
