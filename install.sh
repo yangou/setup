@@ -16,7 +16,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
 brew reinstall telnet git ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep asdf \
-  coreutils automake autoconf openssl libyaml readline libxslt libtool unixodbc unzip curl gnupg autoconf wxmac
+  coreutils automake autoconf openssl libyaml readline libxslt libtool unixodbc unzip curl gnupg autoconf wxmac fop
 brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom flux slack wechat dropbox google-chrome divvy
 
 # install fzf plugins
