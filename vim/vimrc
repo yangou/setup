@@ -41,6 +41,7 @@ let g:mix_format_options = '--check-equivalent'
 let g:multi_cursor_exit_from_insert_mode = 0
 
 let g:ale_elixir_elixir_ls_config = {'elixirLS': {'dialyzerEnabled': v:false}}
+let g:ale_linters = {'elixir': ['elixir-ls']}
 
 nnoremap <SPACE> za
 nnoremap <leader><SPACE> :nohlsearch<CR>
