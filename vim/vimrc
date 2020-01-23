@@ -47,6 +47,7 @@ nnoremap <SPACE> za
 nnoremap <leader><SPACE> :nohlsearch<CR>
 nnoremap <leader>ev :vsplit $MYVIMRC<CR>
 nnoremap <leader>sv :source $MYVIMRC<CR>
+vnoremap <leader>y :w !pbcopy<CR><CR>
 vnoremap // y/<C-R>"<CR>
 map <leader>o :BufExplorer<CR>
 map <leader>f :MRU<CR>
