@@ -22,9 +22,6 @@ fi
 
 . $(brew --prefix asdf)/asdf.sh
 . $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash
-
-. ~/.asdf/plugins/java/asdf-java-wrapper.bash
-
 . $(brew --prefix)/etc/bash_completion.d/git-completion.bash
 
 export BASH_SILENCE_DEPRECATION_WARNING=1
