@@ -35,13 +35,15 @@ let g:NERDTreeNodeDelimiter = "\u00a0"
 let g:NERDTreeWinPos = "right"
 let NERDTreeShowHidden = 1
 
-" let g:mix_format_on_save = 1
+let g:mix_format_on_save = 1
 let g:mix_format_silent_errors = 1
 let g:mix_format_options = '--check-equivalent'
 let g:multi_cursor_exit_from_insert_mode = 0
 
 let g:ale_elixir_elixir_ls_config = {'elixirLS': {'dialyzerEnabled': v:false}}
 let g:ale_linters = {'elixir': ['elixir-ls']}
+
+let g:rustfmt_autosave = 1
 
 nnoremap <SPACE> za
 nnoremap <leader><SPACE> :nohlsearch<CR>
@@ -76,7 +78,6 @@ augroup env
 augroup END
 
 nnoremap =j :%!python -m json.tool<CR>
-nnoremap =f :MixFormat<CR>
 nnoremap <leader>F :CtrlSF<SPACE>
 nnoremap tt :NERDTreeToggle<CR>
 nnoremap tf :NERDTreeFind<CR>
