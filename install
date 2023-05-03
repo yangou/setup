@@ -24,8 +24,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 brew update
-brew install --cask virtualbox vagrant vagrant-manager iterm2 orbstack docker flux slack wechat dropbox google-chrome sublime-text aws-vpn-client authy rectangle zoom
-brew install telnet ack tmux jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure
+brew install --cask virtualbox vagrant vagrant-manager orbstack docker flux slack wechat dropbox google-chrome sublime-text aws-vpn-client authy rectangle zoom
+brew install telnet ack jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure
 brew upgrade
 
 # install fzf
@@ -36,18 +36,25 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
 git clone --depth=1 https://github.com/powerline/fonts.git ~/powerlevel10k/fonts
 ~/powerlevel10k/fonts/install.sh
 
-# configure iterm2
+# install & configure fly vim, iTerm2, tmux
+rm -rf ~/maximum-awesome && git clone https://github.com/square/maximum-awesome.git ~/maximum-awesome && cd ~/maximum-awesome/ && rake
+cd -
+
+line="source $PWD/vim/.vimrc.bundles.local"
+grep -qF -- "$line" ~/.vimrc.bundles.local 2>/dev/null || echo "$line" >> ~/.vimrc.bundles.local
+
+line="source $PWD/vim/.vimrc.local"
+grep -qF -- "$line" ~/.vimrc.local 2>/dev/null || echo "$line" >> ~/.vimrc.local
+
+vim +PluginInstall +qall
+
+# install iTerm2 color
 (curl -Ls https://raw.githubusercontent.com/sindresorhus/iterm2-snazzy/main/Snazzy.itermcolors > /tmp/Snazzy.itermcolors && open /tmp/Snazzy.itermcolors)
-#TODO: set default terminal, install integrations, enable python - allow all apps to connect
 
 # configure tmux
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-! [ -L ~/.tmux.conf ] && ln -s $PWD/tmux/.tmux.conf ~/.tmux.conf
-
-# configure vim
-curl -s -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-! [ -L ~/.vimrc ] && ln -s $PWD/vim/.vimrc ~/.vimrc
-echo | vim -c "PlugInstall | qall" 
+line="source $PWD/tmux/.tmux.conf.local"
+grep -qF -- "$line" ~/.tmux.conf.local 2>/dev/null || echo "$line" >> ~/.tmux.conf.local
 
 # configure git
 git config --global alias.co checkout
@@ -71,14 +78,14 @@ asdf plugin-add nodejs
 asdf plugin-add rust
 
 # install vagrant plugins
-vagrant plugin install landrush
-vagrant plugin install vagrant-hosts
+# vagrant plugin install landrush
+# vagrant plugin install vagrant-hosts
 
 line="source $PWD/zsh/.zprofile"
-grep -qF -- "$line" ~/.zprofile || echo "$line" >> ~/.zprofile
+grep -qF -- "$line" ~/.zprofile 2>/dev/null || echo "$line" >> ~/.zprofile
 
 line="source $PWD/zsh/.zshrc"
-grep -qF -- "$line" ~/.zshrc || echo "$line" >> ~/.zshrc
+grep -qF -- "$line" ~/.zshrc 2>/dev/null || echo "$line" >> ~/.zshrc
 
 source ~/.zprofile
 source ~/.zshrc

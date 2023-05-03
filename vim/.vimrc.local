@@ -1,0 +1,14 @@
+let g:airline_powerline_fonts = 1
+
+set rtp+=/usr/local/opt/fzf
+
+set termguicolors
+
+let g:tokyonight_style = 'night' " available: night, storm
+let g:tokyonight_enable_italic = 1
+colorscheme tokyonight
+
+let g:NERDTreeDirArrowExpandable = '▸'
+let g:NERDTreeDirArrowCollapsible = '▾'
+let g:NERDTreeWinPos = "right"
+let NERDTreeShowHidden = 1

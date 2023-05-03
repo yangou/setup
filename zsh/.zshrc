@@ -1,6 +1,8 @@
 export EDITOR='vim'
 alias ll='ls -lha'
 
+export PATH="~/bin:$PATH"
+
 # source credentials if any: aws, etc
 [ -f ~/.credentials ] && source ~/.credentials
 
