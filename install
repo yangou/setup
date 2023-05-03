@@ -1,0 +1,84 @@
+#! /bin/zsh
+
+read "USER?user: "
+
+read "EMAIL?email: "
+
+# setup ssh
+if ! [ -f ~/.ssh/id_rsa ]; then
+  read "yn?Do you want to create ssh key? (yes/no) "
+
+  case $yn in
+    yes ) ssh-keygen -t rsa -b 4096 -C "$EMAIL";;
+    no ) echo "exiting...";
+      exit;;
+    * ) echo "invalid response";
+      exit 1;;
+  esac
+fi
+
+# install oh-my-zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
+
+# install homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+brew update
+brew install --cask virtualbox vagrant vagrant-manager iterm2 orbstack docker flux slack wechat dropbox google-chrome sublime-text aws-vpn-client authy rectangle zoom
+brew install telnet ack tmux jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure
+brew upgrade
+
+# install fzf
+$(brew --prefix)/opt/fzf/install --all
+
+# install powerlevel10k theme
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+git clone --depth=1 https://github.com/powerline/fonts.git ~/powerlevel10k/fonts
+~/powerlevel10k/fonts/install.sh
+
+# configure iterm2
+(curl -Ls https://raw.githubusercontent.com/sindresorhus/iterm2-snazzy/main/Snazzy.itermcolors > /tmp/Snazzy.itermcolors && open /tmp/Snazzy.itermcolors)
+#TODO: set default terminal, install integrations, enable python - allow all apps to connect
+
+# configure tmux
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+! [ -L ~/.tmux.conf ] && ln -s $PWD/tmux/.tmux.conf ~/.tmux.conf
+
+# configure vim
+curl -s -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+! [ -L ~/.vimrc ] && ln -s $PWD/vim/.vimrc ~/.vimrc
+echo | vim -c "PlugInstall | qall" 
+
+# configure git
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.cp cherry-pick
+git config --global alias.cm commit
+git config --global alias.df diff
+git config --global alias.st status
+git config --global user.name "$USER"
+git config --global user.email "$EMAIL"
+
+# install asdf plugins
+asdf plugin-add golang
+asdf plugin-add java
+asdf plugin-add erlang
+asdf plugin-add elixir
+asdf plugin-add ruby
+asdf plugin-add python
+asdf plugin-add rebar
+asdf plugin-add nodejs
+asdf plugin-add rust
+
+# install vagrant plugins
+vagrant plugin install landrush
+vagrant plugin install vagrant-hosts
+
+line="source $PWD/zsh/.zprofile"
+grep -qF -- "$line" ~/.zprofile || echo "$line" >> ~/.zprofile
+
+line="source $PWD/zsh/.zshrc"
+grep -qF -- "$line" ~/.zshrc || echo "$line" >> ~/.zshrc
+
+source ~/.zprofile
+source ~/.zshrc
