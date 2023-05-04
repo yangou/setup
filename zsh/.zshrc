@@ -14,6 +14,8 @@ export PATH="~/bin:$PATH"
 . /usr/local/opt/asdf/libexec/asdf.sh
 
 # fzf
+export FZF_DEFAULT_OPTS='--extended --height 40% --layout=reverse --border'
+
 # search selected directory
 fd() {
   local dir

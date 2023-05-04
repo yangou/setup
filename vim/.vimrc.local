@@ -9,7 +9,55 @@ let g:tokyonight_enable_italic = 1
 
 colorscheme snazzy
 
+let g:NERDTreeNodeDelimiter = "\u00a0"
 let g:NERDTreeDirArrowExpandable = '▸'
 let g:NERDTreeDirArrowCollapsible = '▾'
 let g:NERDTreeWinPos = "right"
 let NERDTreeShowHidden = 1
+
+syntax on
+set nowrap
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
+set expandtab
+set autoindent
+set number
+set showcmd
+set cursorline
+filetype plugin indent on
+set wildmenu
+set lazyredraw
+set showmatch
+set incsearch
+set hlsearch
+set foldenable
+set foldlevelstart=10
+set foldnestmax=10
+set foldmethod=indent
+set smartcase
+set mouse=a
+
+nnoremap <SPACE> za
+nnoremap <leader><SPACE> :nohlsearch<CR>
+nnoremap <leader>ev :vsplit $MYVIMRC<CR>
+nnoremap <leader>sv :source $MYVIMRC<CR>
+vnoremap <leader>y :w !pbcopy<CR><CR>
+vnoremap // y/<C-R>"<CR>
+
+nnoremap "" bi"<ESC>lea"<ESC>
+nnoremap '' bi'<ESC>lea'<ESC>
+nnoremap <leader>w :w<CR>
+inoremap {<CR> {<CR>}<ESC>ko
+nnoremap <C-j> :m .+1<CR>==
+nnoremap <C-k> :m .-2<CR>==
+inoremap <C-j> <ESC>:m .+1<CR>==gi
+inoremap <C-k> <ESC>:m .-2<CR>==gi
+vnoremap <C-j> :m '>+1<CR>gv=gv
+vnoremap <C-k> :m '<-2<CR>gv=gv
+vnoremap aa <ESC>gg0vG$
+nnoremap == ggVG=
+
+let g:mix_format_on_save = 1
+let g:mix_format_options = '--check-equivalent'
+let g:mix_format_silent_errors = 1
