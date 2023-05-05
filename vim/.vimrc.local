@@ -1,13 +1,19 @@
-let g:airline_powerline_fonts = 1
+try
+	colorscheme snazzy
+	catch
+endtry
 
 set rtp+=/usr/local/opt/fzf
-
 set termguicolors
+set nowrap
+set cursorline
+set hlsearch
+set foldenable
+set foldlevelstart=10
+set foldnestmax=10
+set foldmethod=indent
 
-let g:tokyonight_style = 'night' " available: night, storm
-let g:tokyonight_enable_italic = 1
-
-colorscheme snazzy
+let g:airline_powerline_fonts = 1
 
 let g:NERDTreeNodeDelimiter = "\u00a0"
 let g:NERDTreeDirArrowExpandable = '▸'
@@ -15,49 +21,71 @@ let g:NERDTreeDirArrowCollapsible = '▾'
 let g:NERDTreeWinPos = "right"
 let NERDTreeShowHidden = 1
 
-syntax on
-set nowrap
-set tabstop=2
-set softtabstop=2
-set shiftwidth=2
-set expandtab
-set autoindent
-set number
-set showcmd
-set cursorline
-filetype plugin indent on
-set wildmenu
-set lazyredraw
-set showmatch
-set incsearch
-set hlsearch
-set foldenable
-set foldlevelstart=10
-set foldnestmax=10
-set foldmethod=indent
-set smartcase
-set mouse=a
-
-nnoremap <SPACE> za
-nnoremap <leader><SPACE> :nohlsearch<CR>
-nnoremap <leader>ev :vsplit $MYVIMRC<CR>
-nnoremap <leader>sv :source $MYVIMRC<CR>
-vnoremap <leader>y :w !pbcopy<CR><CR>
-vnoremap // y/<C-R>"<CR>
-
-nnoremap "" bi"<ESC>lea"<ESC>
-nnoremap '' bi'<ESC>lea'<ESC>
-nnoremap <leader>w :w<CR>
-inoremap {<CR> {<CR>}<ESC>ko
-nnoremap <C-j> :m .+1<CR>==
-nnoremap <C-k> :m .-2<CR>==
-inoremap <C-j> <ESC>:m .+1<CR>==gi
-inoremap <C-k> <ESC>:m .-2<CR>==gi
-vnoremap <C-j> :m '>+1<CR>gv=gv
-vnoremap <C-k> :m '<-2<CR>gv=gv
-vnoremap aa <ESC>gg0vG$
-nnoremap == ggVG=
-
-let g:mix_format_on_save = 1
+let g:mix_format_on_save = 0
 let g:mix_format_options = '--check-equivalent'
 let g:mix_format_silent_errors = 1
+
+" space to fold/unfold
+nnoremap <SPACE> za
+
+" quick save
+nnoremap <leader>w :w<CR>
+
+" remove highlights
+nnoremap <leader><SPACE> :nohlsearch<CR>
+
+" edit vimrc
+nnoremap <leader>ev :vsplit $MYVIMRC<CR>
+
+" reload vimrc
+nnoremap <leader>sv :source $MYVIMRC<CR>
+
+" copy to system buffer
+vnoremap <leader>y "*y
+
+" search selected
+vnoremap // y/<C-R>"<CR>
+nnoremap // bvwy/<C-R>"<CR>
+
+" auto indent & close the brace when starting a new code block
+inoremap {<CR> {<CR>}<ESC>ko
+
+" select the entire text
+vnoremap aa <ESC>gg0vG$
+
+" auto indent entire text
+nnoremap == ggVG=
+
+" move the selection up & down
+nnoremap <S-C-j> :m .+1<CR>==
+nnoremap <S-C-k> :m .-2<CR>==
+inoremap <S-C-j> <ESC>:m .+1<CR>==gi
+inoremap <S-C-k> <ESC>:m .-2<CR>==gi
+vnoremap <S-C-j> :m '>+1<CR>gv=gv
+vnoremap <S-C-k> :m '<-2<CR>gv=gv
+
+" remove all tailing whitespaces before save
+autocmd BufWritePre * %s/\s\+$//e
+
+" search by file name
+nnoremap <silent> <C-t> :Files<CR>
+
+" search in files
+nnoremap <silent> <C-f> :Rg<CR>
+command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-heading --color=always --smart-case ".shellescape(<q-args>), 1, {'options': '--delimiter : --nth 4..'}, <bang>0)
+
+" async search in files
+nnoremap <C-g> :CtrlSF<space>
+
+autocmd BufRead,BufNewFile *.md set filetype=markdown
+autocmd BufRead,BufNewFile *.kubeconfig set filetype=yaml
+autocmd BufRead,BufNewFile *.service set filetype=systemd
+autocmd BufRead,BufNewFile *.env set filetype=sh
+autocmd BufRead,BufNewFile Vagrantfile set filetype=ruby
+autocmd BufRead,BufNewFile Dockerfile set filetype=yaml
+
+" format the elixir file
+augroup elixir
+  au!
+  autocmd FileType elixir nnoremap <leader>= :MixFormat<CR>
+augroup END

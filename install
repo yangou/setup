@@ -1,5 +1,8 @@
 #! /bin/zsh
 
+local source="${(%):-%x}"
+local pwd="$(cd "$( dirname "$source" )" && pwd)"
+
 read "USER?user: "
 
 read "EMAIL?email: "
@@ -40,10 +43,10 @@ git clone --depth=1 https://github.com/powerline/fonts.git ~/powerlevel10k/fonts
 rm -rf ~/maximum-awesome && git clone https://github.com/square/maximum-awesome.git ~/maximum-awesome && cd ~/maximum-awesome/ && rake
 cd -
 
-line="source $PWD/vim/.vimrc.bundles.local"
+line="source $pwd/vim/.vimrc.bundles.local"
 grep -qF -- "$line" ~/.vimrc.bundles.local 2>/dev/null || echo "$line" >> ~/.vimrc.bundles.local
 
-line="source $PWD/vim/.vimrc.local"
+line="source $pwd/vim/.vimrc.local"
 grep -qF -- "$line" ~/.vimrc.local 2>/dev/null || echo "$line" >> ~/.vimrc.local
 
 vim +PluginInstall +qall
@@ -53,7 +56,7 @@ vim +PluginInstall +qall
 
 # configure tmux
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-line="source $PWD/tmux/.tmux.conf.local"
+line="source $pwd/tmux/.tmux.conf.local"
 grep -qF -- "$line" ~/.tmux.conf.local 2>/dev/null || echo "$line" >> ~/.tmux.conf.local
 
 # configure git
@@ -81,10 +84,10 @@ asdf plugin-add rust
 # vagrant plugin install landrush
 # vagrant plugin install vagrant-hosts
 
-line="source $PWD/zsh/.zprofile"
+line="source $pwd/zsh/.zprofile"
 grep -qF -- "$line" ~/.zprofile 2>/dev/null || echo "$line" >> ~/.zprofile
 
-line="source $PWD/zsh/.zshrc"
+line="source $pwd/zsh/.zshrc"
 grep -qF -- "$line" ~/.zshrc 2>/dev/null || echo "$line" >> ~/.zshrc
 
 source ~/.zprofile

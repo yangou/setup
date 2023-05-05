@@ -14,7 +14,10 @@ export PATH="~/bin:$PATH"
 . /usr/local/opt/asdf/libexec/asdf.sh
 
 # fzf
-export FZF_DEFAULT_OPTS='--extended --height 40% --layout=reverse --border'
+if type ag &> /dev/null; then
+  export FZF_DEFAULT_COMMAND='rg --files'
+  export FZF_DEFAULT_OPTS='-m --height 40% --layout=reverse --border'
+fi
 
 # search selected directory
 fd() {
