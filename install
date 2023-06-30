@@ -20,14 +20,21 @@ if ! [ -f ~/.ssh/id_rsa ]; then
   esac
 fi
 
+# install xcode command line tools
+sudo xcode-select --install
+
+# install rosetta2
+sudo softwareupdate --install-rosetta
+
 # install oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
 
 # install homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 brew update
-brew install --cask virtualbox vagrant vagrant-manager orbstack docker flux slack wechat dropbox google-chrome sublime-text aws-vpn-client authy rectangle zoom drawio
+brew install --cask orbstack docker flux slack wechat dropbox google-chrome sublime-text aws-vpn-client authy rectangle zoom drawio visual-studio-code qq 1password
 brew install telnet ack jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure
 brew upgrade
 

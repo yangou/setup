@@ -3,7 +3,7 @@ try
 catch
 endtry
 
-set rtp+=/usr/local/opt/fzf
+set rtp+=/opt/homebrew/opt/fzf
 set termguicolors
 set nowrap
 set cursorline
@@ -57,18 +57,18 @@ vnoremap aa <ESC>gg0vG$
 nnoremap == ggVG=
 
 " move the selection up & down
-autocmd BufEnter * nnoremap <C-n> :m .+1<CR>==
-autocmd BufEnter * nnoremap <C-m> :m .-2<CR>==
-autocmd BufEnter * inoremap <C-n> <ESC>:m .+1<CR>==gi
-autocmd BufEnter * inoremap <C-m> <ESC>:m .-2<CR>==gi
-autocmd BufEnter * vnoremap <C-n> :m '>+1<CR>gv=gv
-autocmd BufEnter * vnoremap <C-m> :m '<-2<CR>gv=gv
+" autocmd BufEnter * nnoremap <C-n> :m .+1<CR>==
+" autocmd BufEnter * nnoremap <C-m> :m .-2<CR>==
+" autocmd BufEnter * inoremap <C-n> <ESC>:m .+1<CR>==gi
+" autocmd BufEnter * inoremap <C-m> <ESC>:m .-2<CR>==gi
+" autocmd BufEnter * vnoremap <C-n> :m '>+1<CR>gv=gv
+" autocmd BufEnter * vnoremap <C-m> :m '<-2<CR>gv=gv
 
 " navigate the buffers
-autocmd VimEnter * noremap <C-h> <C-w>h
-autocmd VimEnter * noremap <C-j> <C-w>j
-autocmd VimEnter * noremap <C-k> <C-w>k
-autocmd VimEnter * noremap <C-l> <C-w>l
+" autocmd VimEnter * noremap <C-h> <C-w>h
+" autocmd VimEnter * noremap <C-j> <C-w>j
+" autocmd VimEnter * noremap <C-k> <C-w>k
+" autocmd VimEnter * noremap <C-l> <C-w>l
 
 " remove all tailing whitespaces before save
 autocmd BufWritePre * %s/\s\+$//e

@@ -11,7 +11,7 @@ export PATH="~/bin:$PATH"
 # prompt pure
 
 # asdf
-. /usr/local/opt/asdf/libexec/asdf.sh
+. /opt/homebrew/opt/asdf/libexec/asdf.sh
 
 # fzf
 if type ag &> /dev/null; then
@@ -51,3 +51,8 @@ ch() {
 export ERL_AFLAGS="-kernel shell_history enabled"
 
 source ~/powerlevel10k/powerlevel10k.zsh-theme
+
+# functions
+bsft() {
+  cd ~/Workspace/$1
+}
