@@ -53,6 +53,6 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 source ~/powerlevel10k/powerlevel10k.zsh-theme
 
 # functions
-bsft() {
+ws() {
   cd ~/Workspace/$1
 }
