@@ -16,8 +16,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # packages
 brew reinstall telnet git ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep asdf \
-  coreutils automake autoconf openssl libyaml readline libxslt libtool unixodbc unzip curl gnupg autoconf wxmac fop
-brew cask reinstall virtualbox vagrant vagrant-manager iterm2 docker atom flux slack wechat dropbox google-chrome divvy
+  coreutils automake autoconf openssl libyaml readline libxslt libtool unixodbc unzip curl gnupg autoconf wxwidgets fop
+brew reinstall --cask iterm2 docker flux slack wechat dropbox google-chrome divvy sublime-text \
+  # atom virtualbox vagrant vagrant-manager \
 
 # install fzf plugins
 $(brew --prefix)/opt/fzf/install --all
@@ -32,8 +33,8 @@ asdf plugin-add rebar
 asdf plugin-add nodejs
 
 # install vagrant plugins
-vagrant plugin install landrush
-vagrant plugin install vagrant-hosts
+# vagrant plugin install landrush
+# vagrant plugin install vagrant-hosts
 
 # vim
 rm -rf ~/.vim && ln -s $DIR/vim ~/.vim
@@ -70,10 +71,10 @@ grep -qF -- "$line" ~/.bashrc || echo "$line" >> ~/.bashrc
 cp $DIR/fonts/* ~/Library/Fonts/
 
 # set hostnames
-sudo scutil --set HostName $HOSTNAME
-sudo scutil --set LocalHostName $HOSTNAME
-sudo scutil --set ComputerName $HOSTNAME
-sudo dscacheutil -flushcache
+# sudo scutil --set HostName $HOSTNAME
+# sudo scutil --set LocalHostName $HOSTNAME
+# sudo scutil --set ComputerName $HOSTNAME
+# sudo dscacheutil -flushcache
 
 # restart
-sudo reboot
+# sudo reboot
