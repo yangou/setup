@@ -34,7 +34,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 brew update
-brew install --cask docker flux slack wechat whatsapp discord dropbox google-chrome sublime-text aws-vpn-client authy rectangle zoom drawio visual-studio-code qq 1password
+brew install --cask docker flux slack wechat whatsapp dropbox google-chrome sublime-text authy rectangle zoom drawio visual-studio-code
 brew install telnet ack jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure
 brew upgrade
 
