@@ -12,7 +12,7 @@ read -r HOSTNAME
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # install homebrew
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # packages
 brew reinstall telnet git ack tmux ctags bash-completion csshx jq tree watch colordiff fzf ripgrep asdf \
