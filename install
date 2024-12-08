@@ -1,15 +1,15 @@
-#! /bin/zsh
+#! /bin/bash
 
-local source="${(%):-%x}"
-local pwd="$(cd "$( dirname "$source" )" && pwd)"
+read -p "Email: " EMAIL
 
-read "USER?user: "
-
-read "EMAIL?email: "
+if [[ -z "$EMAIL" ]]; then
+  echo "Error: email cannot be empty." >&2
+  exit 1
+fi
 
 # setup ssh
 if ! [ -f ~/.ssh/id_rsa ]; then
-  read "yn?Do you want to create ssh key? (yes/no) "
+  read -p "Do you want to create ssh key? (yes/no) " yn
 
   case $yn in
     yes ) ssh-keygen -t rsa -b 4096 -C "$EMAIL";;
@@ -20,50 +20,37 @@ if ! [ -f ~/.ssh/id_rsa ]; then
   esac
 fi
 
-# install xcode command line tools
-sudo xcode-select --install
-
-# install rosetta2
-sudo softwareupdate --install-rosetta
+sudo apt update
+sudo apt install zsh git jq tree wget curl telnet ack watch colordiff fzf ripgrep socat bison automake libtool openssl flex ctags tmux ruby
+# sudo apt upgrade
 
 # install oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
 
-# install homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
-brew update
-brew install --cask docker flux slack wechat whatsapp dropbox google-chrome sublime-text authy rectangle zoom drawio visual-studio-code
-brew install telnet ack jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure socat bison automake libtool openssl flex thrift
-brew upgrade
-
-# install fzf
-$(brew --prefix)/opt/fzf/install --all
+# install asdf
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.1
+. ~/.asdf/asdf.sh
 
 # install powerlevel10k theme
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
 git clone --depth=1 https://github.com/powerline/fonts.git ~/powerlevel10k/fonts
 ~/powerlevel10k/fonts/install.sh
 
-# install & configure fly vim, iTerm2, tmux
-rm -rf ~/maximum-awesome && git clone https://github.com/square/maximum-awesome.git ~/maximum-awesome && cd ~/maximum-awesome/ && rake
+# vim & tmux
+rm -rf ~/maximum-awesome && git clone https://github.com/yangou/maximum-awesome-linux.git ~/maximum-awesome && cd ~/maximum-awesome/ && rake
 cd -
 
-line="source $pwd/vim/.vimrc.bundles.local"
+line="source $PWD/vim/.vimrc.bundles.local"
 grep -qF -- "$line" ~/.vimrc.bundles.local 2>/dev/null || echo "$line" >> ~/.vimrc.bundles.local
 
-line="source $pwd/vim/.vimrc.local"
+line="source $PWD/vim/.vimrc.local"
 grep -qF -- "$line" ~/.vimrc.local 2>/dev/null || echo "$line" >> ~/.vimrc.local
 
 vim +PluginInstall +qall
 
-# install iTerm2 color
-(curl -Ls https://raw.githubusercontent.com/sindresorhus/iterm2-snazzy/main/Snazzy.itermcolors > /tmp/Snazzy.itermcolors && open /tmp/Snazzy.itermcolors)
-
 # configure tmux
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-line="source $pwd/tmux/.tmux.conf.local"
+line="source $PWD/tmux/.tmux.conf.local"
 grep -qF -- "$line" ~/.tmux.conf.local 2>/dev/null || echo "$line" >> ~/.tmux.conf.local
 
 # configure git
@@ -87,15 +74,16 @@ asdf plugin-add rebar
 asdf plugin-add nodejs
 asdf plugin-add rust
 
-# install vagrant plugins
-# vagrant plugin install landrush
-# vagrant plugin install vagrant-hosts
+# install java
+asdf install java openjdk-23.0.1
+asdf global java openjdk-23.0.1
 
-line="source $pwd/zsh/.zprofile"
+# install golang
+asdf install golang 1.19
+asdf global golang 1.19
+
+line="source $PWD/zsh/.zprofile"
 grep -qF -- "$line" ~/.zprofile 2>/dev/null || echo "$line" >> ~/.zprofile
 
-line="source $pwd/zsh/.zshrc"
+line="source $PWD/zsh/.zshrc"
 grep -qF -- "$line" ~/.zshrc 2>/dev/null || echo "$line" >> ~/.zshrc
-
-source ~/.zprofile
-source ~/.zshrc
