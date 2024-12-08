@@ -1,7 +1,7 @@
 export EDITOR='vim'
 alias ll='ls -lha'
 
-export PATH="~/bin:$PATH"
+export PATH="$HOME/bin:$HOME/Workspace/bin:$PATH"
 
 # source credentials if any: aws, etc
 [ -f ~/.credentials ] && source ~/.credentials
@@ -12,6 +12,15 @@ export PATH="~/bin:$PATH"
 
 # asdf
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
+
+# java
+. ~/.asdf/plugins/java/set-java-home.zsh
+
+# bison
+export PATH="/opt/homebrew/opt/bison/bin:$PATH"
+
+# flex
+export PATH="/opt/homebrew/opt/flex/bin:$PATH"
 
 # fzf
 if type ag &> /dev/null; then
