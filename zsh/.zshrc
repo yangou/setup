@@ -17,9 +17,13 @@ autoload -Uz compinit && compinit
 
 # java
 . ~/.asdf/plugins/java/set-java-home.zsh
+add-zsh-hook -d precmd asdf_update_java_home
+add-zsh-hook chpwd asdf_update_java_home
 
 # golang
 . ~/.asdf/plugins/golang/set-env.zsh
+add-zsh-hook -d precmd asdf_update_golang_env
+add-zsh-hook chpwd asdf_update_golang_env
 
 # fzf
 if type ag &> /dev/null; then
