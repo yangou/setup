@@ -34,7 +34,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 brew update
-brew install --cask docker flux slack wechat whatsapp dropbox google-chrome sublime-text authy rectangle zoom drawio visual-studio-code
+brew install --cask docker flux slack wechat whatsapp dropbox google-chrome sublime-text authy rectangle zoom drawio
+# brew install --cask visual-studio-code intellij-idea goland pycharm datagrip
 brew install telnet ack jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure socat bison automake libtool openssl flex thrift
 brew upgrade
 
@@ -90,6 +91,9 @@ asdf plugin-add rust
 # install vagrant plugins
 # vagrant plugin install landrush
 # vagrant plugin install vagrant-hosts
+
+# enable gobin
+cat $pwd/golang/set-env.zsh > ~/.asdf/plugins/golang/set-env.zsh
 
 line="source $pwd/zsh/.zprofile"
 grep -qF -- "$line" ~/.zprofile 2>/dev/null || echo "$line" >> ~/.zprofile

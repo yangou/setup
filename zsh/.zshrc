@@ -16,6 +16,9 @@ export PATH="$HOME/bin:$HOME/Workspace/bin:$PATH"
 # java
 . ~/.asdf/plugins/java/set-java-home.zsh
 
+# golang
+. ~/.asdf/plugins/golang/set-env.zsh
+
 # bison
 export PATH="/opt/homebrew/opt/bison/bin:$PATH"
 
