@@ -18,6 +18,9 @@ autoload -Uz compinit && compinit
 # java
 . ~/.asdf/plugins/java/set-java-home.zsh
 
+# golang
+. ~/.asdf/plugins/golang/set-env.zsh
+
 # fzf
 if type ag &> /dev/null; then
   export FZF_DEFAULT_COMMAND='rg --files'

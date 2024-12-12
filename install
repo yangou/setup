@@ -82,6 +82,9 @@ asdf global java openjdk-23.0.1
 asdf install golang 1.19
 asdf global golang 1.19
 
+# enable gobin
+cat $pwd/golang/set-env.zsh > ~/.asdf/plugins/golang/set-env.zsh
+
 line="source $PWD/zsh/.zprofile"
 grep -qF -- "$line" ~/.zprofile 2>/dev/null || echo "$line" >> ~/.zprofile
 
