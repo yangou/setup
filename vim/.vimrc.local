@@ -12,6 +12,18 @@ set foldenable
 set foldlevelstart=10
 set foldnestmax=10
 set foldmethod=indent
+set clipboard=unnamed              " Use system clipboard
+set updatetime=1000                " Faster updates for ALE linting
+
+" vim-go specific settings
+let g:go_fmt_command = "goimports" " Use goimports for formatting
+let g:go_def_mode = 'gopls'        " Use gopls for definition lookup
+let g:go_info_mode = 'gopls'       " Use gopls for type info
+
+" ALE configuration
+let g:ale_linters = {'go': ['gopls']}
+let g:ale_fixers = {'go': ['gofmt', 'goimports']}
+let g:ale_fix_on_save = 1
 
 let g:airline_powerline_fonts = 1
 
@@ -24,6 +36,12 @@ let NERDTreeShowHidden = 1
 let g:mix_format_on_save = 0
 let g:mix_format_options = '--check-equivalent'
 let g:mix_format_silent_errors = 1
+
+" Golang bindings
+nnoremap <leader>b :GoBuild<CR>      " Build Go code
+nnoremap <leader>r :GoRun<CR>        " Run Go code
+nnoremap <leader>t :GoTest<CR>       " Run Go tests
+nnoremap <leader>i :GoImports<CR>    " Organize imports
 
 " space to fold/unfold
 nnoremap <SPACE> za

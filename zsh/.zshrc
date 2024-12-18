@@ -19,6 +19,7 @@ add-zsh-hook -d precmd asdf_update_java_home
 add-zsh-hook chpwd asdf_update_java_home
 
 # golang
+export GLOBAL_GOLANG=1.23.4
 . ~/.asdf/plugins/golang/set-env.zsh
 
 # bison
@@ -26,6 +27,9 @@ export PATH="/opt/homebrew/opt/bison/bin:$PATH"
 
 # flex
 export PATH="/opt/homebrew/opt/flex/bin:$PATH"
+
+# npm
+export PATH="$PATH:$HOME/.npm-global/bin"
 
 # fzf
 if type ag &> /dev/null; then

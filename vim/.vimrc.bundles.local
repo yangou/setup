@@ -8,3 +8,6 @@ Plugin 'junegunn/fzf'
 Plugin 'junegunn/fzf.vim'
 Plugin 'dyng/ctrlsf.vim'
 Plugin 'mg979/vim-visual-multi'
+Plugin 'fatih/vim-go'
+Plugin 'neoclide/coc.nvim', {'branch': 'release'}
+Plugin 'dense-analysis/ale'

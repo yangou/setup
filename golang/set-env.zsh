@@ -68,10 +68,11 @@ asdf_update_golang_env() {
 
     export GOBIN
     GOBIN="$(dirname "${GOROOT:A}")/bin"
+    GLOBAL_GOBIN=$(echo $GOBIN | sed -E "s|golang.*$|golang/${GLOBAL_GOLANG}/bin|g")
 
     export PATH
-    PATH=$(echo $PATH | sed -E "s#${HOME}/.asdf/installs/golang/[0-9]+\.[0-9]+(\\.[0-9]+)?/bin(:|$)##g")
-    PATH="$GOBIN:$PATH"
+    PATH=$(echo $PATH | sed -E "s#[^:]*golang[^:]*(:|$)##g")
+    PATH="$GOBIN:$GLOBAL_GOBIN:$PATH"
   fi
 }
 
