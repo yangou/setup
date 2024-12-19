@@ -76,6 +76,36 @@ vnoremap aa <ESC>gg0vG$
 " auto indent entire text
 nnoremap == ggVG=
 
+" Goyo mode
+nnoremap gy :Goyo<CR>        " Toggle Goyo mode
+function! s:goyo_enter()
+  if executable('tmux') && strlen($TMUX)
+    silent !tmux set status off
+    silent !tmux list-panes -F '\#F' | grep -q Z || tmux resize-pane -Z
+  endif
+  set noshowmode
+  set noshowcmd
+  set scrolloff=999
+  set number
+  " Limelight
+  " ...
+endfunction
+
+function! s:goyo_leave()
+  if executable('tmux') && strlen($TMUX)
+    silent !tmux set status on
+    silent !tmux list-panes -F '\#F' | grep -q Z && tmux resize-pane -Z
+  endif
+  set showmode
+  set showcmd
+  set scrolloff=5
+  " Limelight!
+  " ...
+endfunction
+
+autocmd! User GoyoEnter nested call <SID>goyo_enter()
+autocmd! User GoyoLeave nested call <SID>goyo_leave()
+
 " move the selection up & down
 " autocmd BufEnter * nnoremap <C-n> :m .+1<CR>==
 " autocmd BufEnter * nnoremap <C-m> :m .-2<CR>==

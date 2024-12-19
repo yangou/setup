@@ -74,3 +74,10 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 ws() {
   cd ~/Workspace/$1
 }
+
+_ws_complete() {
+  local ws_path=~/Workspace/
+  compadd -W $ws_path -- $(ls -1 $ws_path)
+}
+
+compdef _ws_complete ws
