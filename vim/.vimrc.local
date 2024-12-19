@@ -42,6 +42,8 @@ nnoremap <leader>b :GoBuild<CR>      " Build Go code
 nnoremap <leader>r :GoRun<CR>        " Run Go code
 nnoremap <leader>t :GoTest<CR>       " Run Go tests
 nnoremap <leader>i :GoImports<CR>    " Organize imports
+nnoremap gr :GoReferrers<CR>         " Find the references
+nnoremap gi :GoImplements<CR>        " Find the implementations
 
 " space to fold/unfold
 nnoremap <SPACE> za
