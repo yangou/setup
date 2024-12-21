@@ -87,6 +87,8 @@ function! s:goyo_enter()
   set noshowcmd
   set scrolloff=999
   set number
+  " Set Goyo width
+  let g:goyo_width = 200
   " Limelight
   " ...
 endfunction
@@ -132,6 +134,13 @@ command! -bang -nargs=* Rg call fzf#vim#grep("rg --column --line-number --no-hea
 
 " async search in files
 nnoremap <C-g> :CtrlSF<space>
+let g:ctrlsf_search_mode = 'async'
+" let g:ctrlsf_default_view_mode = 'compact'
+" let g:ctrlsf_position = 'bottom'
+let g:ctrlsf_auto_focus = {'at': 'start'}
+let g:ctrlsf_auto_preview = 1
+let g:ctrlsf_preview_update = 1
+let g:ctrlsf_preview_window = 'rightbelow vertical 60'
 
 autocmd BufRead,BufNewFile *.md set filetype=markdown
 autocmd BufRead,BufNewFile *.kubeconfig set filetype=yaml
