@@ -36,7 +36,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 brew update
 brew install --cask docker docker-compose flux slack wechat whatsapp dropbox google-chrome sublime-text authy rectangle zoom drawio
 # brew install --cask visual-studio-code intellij-idea goland pycharm datagrip
-brew install telnet ack jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure socat bison automake libtool openssl flex thrift
+brew install telnet ack jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure socat bison automake libtool openssl wxmac flex thrift clipboard
 brew upgrade
 
 # install fzf

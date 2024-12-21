@@ -23,10 +23,14 @@ export GLOBAL_GOLANG=1.23.4
 . ~/.asdf/plugins/golang/set-env.zsh
 
 # bison
-export PATH="/opt/homebrew/opt/bison/bin:$PATH"
+export PATH="$PATH:$(brew --prefix bison)/bin"
 
 # flex
-export PATH="/opt/homebrew/opt/flex/bin:$PATH"
+export PATH="$PATH:$(brew --prefix flex)/bin"
+
+# openssl
+export KERL_CONFIGURE_OPTIONS="--with-ssl=$(brew --prefix openssl)"
+export PATH="$PATH:$(brew --prefix openssl)/bin"
 
 # npm
 export PATH="$PATH:$HOME/.npm-global/bin"
