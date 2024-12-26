@@ -13,3 +13,4 @@ Plugin 'neoclide/coc.nvim', {'branch': 'release'}
 Plugin 'dense-analysis/ale'
 Plugin 'junegunn/goyo.vim'
 Plugin 'junegunn/limelight.vim'
+Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }

@@ -154,3 +154,11 @@ augroup elixir
   au!
   autocmd FileType elixir nnoremap <leader>= :MixFormat<CR>
 augroup END
+
+augroup golang
+  au!
+  autocmd FileType go let g:go_gopls_enabled = 1
+  autocmd FileType go let g:deoplete#enable_at_startup = 1
+  autocmd FileType go setlocal omnifunc=go#complete#Complete
+  autocmd FileType go setlocal tabstop=4 shiftwidth=4 expandtab
+augroup END
