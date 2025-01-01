@@ -14,3 +14,5 @@ Plugin 'dense-analysis/ale'
 Plugin 'junegunn/goyo.vim'
 Plugin 'junegunn/limelight.vim'
 Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plugin 'Xuyuanp/nerdtree-git-plugin'
+
