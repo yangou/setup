@@ -35,11 +35,17 @@ export PATH="$PATH:$(brew --prefix openssl)/bin"
 # npm
 export PATH="$PATH:$HOME/.npm-global/bin"
 
+# clustercrl
+alias clusterctl="clusterctl --config ./cluster-api/clusterctl.yml"
+
 # fzf
 if type ag &> /dev/null; then
   export FZF_DEFAULT_COMMAND='rg --files'
   export FZF_DEFAULT_OPTS='-m --height 40% --layout=reverse --border'
 fi
+
+# k8s
+export CLUSTER_TOPOLOGY=true
 
 # search selected directory
 fd() {
@@ -85,3 +91,13 @@ _ws_complete() {
 }
 
 compdef _ws_complete ws
+
+load_env() {
+  if [[ -f .env ]]; then
+    source .env
+  fi
+}
+
+# Add the function to the chpwd hook
+autoload -U add-zsh-hook
+add-zsh-hook chpwd load_env
