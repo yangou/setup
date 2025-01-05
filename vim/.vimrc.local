@@ -62,6 +62,7 @@ nnoremap <leader>sv :source $MYVIMRC<CR>
 
 " copy to system buffer
 vnoremap <leader>y "*y
+nnoremap <leader>yp :let @+=expand("%")<CR>
 
 " search selected
 vnoremap // y/<C-R>"<CR>
@@ -88,7 +89,7 @@ function! s:goyo_enter()
   set scrolloff=999
   set number
   " Set Goyo width
-  let g:goyo_width = 200
+  let g:goyo_width = 400
   " Limelight
   " ...
 endfunction
