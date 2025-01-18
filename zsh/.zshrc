@@ -1,5 +1,6 @@
 export EDITOR='vim'
-alias ll='ls -lha'
+# alias ll='ls -lha'
+unalias ll
 
 export PATH="$HOME/bin:$HOME/Workspace/bin:$PATH"
 
@@ -101,3 +102,28 @@ load_env() {
 # Add the function to the chpwd hook
 autoload -U add-zsh-hook
 add-zsh-hook chpwd load_env
+
+desc() {
+  if [[ $# -eq 2 ]]; then
+    xattr -w com.apple.metadata:kMDItemFinderComment "$2" "$1"
+  else
+    xattr -p com.apple.metadata:kMDItemFinderComment "$1"
+  fi
+}
+
+undesc() {
+  xattr -d com.apple.metadata:kMDItemFinderComment $1
+}
+
+ll() {
+  # Determine the maximum length of the `ls -ldh` output before the file name
+  max_length=$(ls -ldh * | awk '{print length($0)}' | sort -nr | head -n 1)
+
+  # Add padding to align the comments
+  for file in *; do
+    comment=$(xattr -p com.apple.metadata:kMDItemFinderComment "$file" 2>/dev/null || echo "")
+    ls -ldh "$file" | awk -v max_len="$max_length" -v comment="\033[0;32m$comment\033[0m" \
+      '{printf "%-"max_len"s\t%s\n", $0, comment}'
+  done
+}
+
