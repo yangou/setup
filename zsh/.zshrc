@@ -116,14 +116,27 @@ undesc() {
 }
 
 ll() {
-  # Determine the maximum length of the `ls -ldh` output before the file name
-  max_length=$(ls -ldh * | awk '{print length($0)}' | sort -nr | head -n 1)
+  # Use the provided arguments or default to the current directory
+  local args=("$@")
+  if [ ${#args[@]} -eq 0 ]; then
+    args=(".")
+  fi
 
-  # Add padding to align the comments
-  for file in *; do
+  # Force `ls` to output colors (even when piping)
+  ls_output=$(CLICOLOR_FORCE=1 ls -lha "${args[@]}")
+
+  # Determine the maximum length of the `ls -lha` output before the file name
+  max_length=$(echo "$ls_output" | awk '{print length($0)}' | sort -nr | head -n 1)
+
+  # Process each line of the `ls -lha` output
+  echo "$ls_output" | while IFS= read -r line; do
+    # Extract the file name from the line (ignoring color codes)
+    file=$(echo "$line" | sed -E 's/\x1B\[[0-9;]*[mK]//g' | awk '{print $NF}')
+
+    # Get the Finder comment for the file
     comment=$(xattr -p com.apple.metadata:kMDItemFinderComment "$file" 2>/dev/null || echo "")
-    ls -ldh "$file" | awk -v max_len="$max_length" -v comment="\033[0;32m$comment\033[0m" \
-      '{printf "%-"max_len"s\t%s\n", $0, comment}'
+
+    # Print the line with the comment aligned
+    printf "%-${max_length}s\t\033[0;32m%s\033[0m\n" "$line" "$comment"
   done
 }
-
