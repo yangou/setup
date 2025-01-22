@@ -34,11 +34,11 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 brew update
-brew install --cask docker docker-compose flux slack wechat whatsapp dropbox google-chrome sublime-text authy rectangle zoom drawio chatbox
-# brew install --cask visual-studio-code intellij-idea goland pycharm datagrip
+brew install --cask docker docker-compose flux slack wechat whatsapp dropbox google-chrome sublime-text authy rectangle zoom drawio chatbox visual-studio-code cursor
+brew install --cask intellij-idea goland pycharm datagrip
 brew install telnet ack jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure socat bison automake \
      libtool openssl wxmac flex thrift kubectl helm clusterctl kind clusterawsadm \
-     ollama
+     ollama neovim
 brew upgrade
 
 # install fzf
@@ -49,8 +49,8 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
 git clone --depth=1 https://github.com/powerline/fonts.git ~/powerlevel10k/fonts
 ~/powerlevel10k/fonts/install.sh
 
-# install & configure fly vim, iTerm2, tmux
-rm -rf ~/maximum-awesome && git clone https://github.com/square/maximum-awesome.git ~/maximum-awesome && cd ~/maximum-awesome/ && rake
+# install & configure vim, iTerm2, tmux
+rm -rf ~/maximum-awesome && git clone https://github.com/yangou/maximum-awesome.git ~/maximum-awesome && cd ~/maximum-awesome/ && rake
 cd -
 
 line="source $pwd/vim/.vimrc.bundles.local"
@@ -61,12 +61,24 @@ grep -qF -- "$line" ~/.vimrc.local 2>/dev/null || echo "$line" >> ~/.vimrc.local
 
 vim +PluginInstall +qall
 vim +GoInstallBinaries +qall
+vim +CocInstall coc-tabnine +qall
 
 cd ~/.vim/bundle/coc.nvim
 npm ci
 npm run build
 cd -
 
+# configure neovim
+ln -s "$pwd/nvim" ~/.config/nvim
+
+nvim +LazyInstall +qall
+nvim +GoInstallBinaries +qall
+nvim +CocInstall coc-tabnine +qall
+
+cd  ~/.local/share/nvim/lazy/coc.nvim
+npm ci
+npm run build
+cd -
 
 # install iTerm2 color
 (curl -Ls https://raw.githubusercontent.com/sindresorhus/iterm2-snazzy/main/Snazzy.itermcolors > /tmp/Snazzy.itermcolors && open /tmp/Snazzy.itermcolors)
