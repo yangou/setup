@@ -50,8 +50,10 @@ local plugins = {
   {'vim-scripts/greplace.vim', lazy = false},
   {'vim-scripts/matchit.zip', lazy = false},
   {'elixir-editors/vim-elixir', lazy = false},
-  {'vim-airline/vim-airline', lazy = false},
-  {'vim-airline/vim-airline-themes', lazy = false},
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' }
+  },
   {'connorholyday/vim-snazzy', lazy = false},
   {'mhinz/vim-mix-format', lazy = false},
   {'chun-yang/vim-action-ag', lazy = false},
@@ -118,7 +120,16 @@ local plugins = {
 }
 
 require("lazy").setup(plugins)
+require('lualine').setup()
 
 vim.cmd('source $HOME/.vim/plugin/whitespace/whitespace.vim')
 
 vim.cmd('source $HOME/.vimrc')
+
+vim.opt.fillchars = {
+  vert = "|",
+  fold = "-",
+  eob = "~",
+  lastline = "@"
+}
+
