@@ -1,3 +1,5 @@
+vim.g.mapleader = ","
+
 -- Enable lazy.nvim plugin manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -72,14 +74,41 @@ local plugins = {
     "yetone/avante.nvim",
     event = "VeryLazy",
     lazy = false,
-    version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
+    version = false, -- set this if you want to always pull the latest change
     opts = {
-      -- add any opts here
+      provider = "lm_studio",
+      auto_suggestions_provider = "lm_studio", -- Since auto-suggestions are a high-frequency operation and therefore expensive, it is recommended to specify an inexpensive provider or even a free provider: copilot
+      vendors = {
+	lm_studio = {
+	  __inherited_from = "openai",
+	  endpoint = "http://127.0.0.1:1234/v1",
+          model = "deepseek-r1-distill-qwen-14b",
+	  timeout = 30000, -- Timeout in milliseconds
+	  temperature = 0.8,
+	  max_tokens = 16384,
+	  -- optional
+	  api_key_name = "",
+	},
+	deepseek = {
+	  __inherited_from = "openai",
+	  endpoint = "https://api.deepseek.com/v1",
+	  model = "deepseek-chat",
+	  timeout = 30000, -- Timeout in milliseconds
+	  temperature = 0.8,
+	  max_tokens = 16384,
+	  -- optional
+	  api_key_name = "DEEPSEEK_API_KEY",  -- default OPENAI_API_KEY if not set
+	},
+      },
+      behaviour = {
+        auto_suggestions = true
+      },
     },
     -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
     build = "make",
     -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
     dependencies = {
+      "nvim-treesitter/nvim-treesitter",
       "stevearc/dressing.nvim",
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
@@ -114,13 +143,18 @@ local plugins = {
           file_types = { "markdown", "Avante" },
         },
         ft = { "markdown", "Avante" },
-      },
-    },
+      }
+    }
   }
 }
 
 require("lazy").setup(plugins)
-require('lualine').setup()
+
+require('lualine').setup({
+  options = {
+    theme = 'palenight'
+  }
+})
 
 vim.cmd('source $HOME/.vim/plugin/whitespace/whitespace.vim')
 
