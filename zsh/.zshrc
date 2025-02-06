@@ -2,6 +2,8 @@ export EDITOR='vim'
 # alias ll='ls -lha'
 unalias ll
 
+alias vim='nvim'
+
 export PATH="$HOME/bin:$HOME/Workspace/bin:$PATH"
 
 # source credentials if any: aws, etc

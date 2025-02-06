@@ -16,6 +16,7 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Plugin specifications
 local plugins = {
+  {'solarnz/thrift.vim', lazy = false},
   {'airblade/vim-gitgutter', lazy = false},
   {'altercation/vim-colors-solarized', lazy = false},
   {'austintaylor/vim-indentobject', lazy = false},
