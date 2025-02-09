@@ -77,8 +77,8 @@ local plugins = {
     lazy = false,
     version = false, -- set this if you want to always pull the latest change
     opts = {
-      provider = "lm_studio",
-      auto_suggestions_provider = "lm_studio", -- Since auto-suggestions are a high-frequency operation and therefore expensive, it is recommended to specify an inexpensive provider or even a free provider: copilot
+      provider = "deepseek",
+      auto_suggestions_provider = "deepseek", -- Since auto-suggestions are a high-frequency operation and therefore expensive, it is recommended to specify an inexpensive provider or even a free provider: copilot
       vendors = {
 	lm_studio = {
 	  __inherited_from = "openai",
@@ -96,7 +96,7 @@ local plugins = {
 	  model = "deepseek-chat",
 	  timeout = 30000, -- Timeout in milliseconds
 	  temperature = 0.8,
-	  max_tokens = 16384,
+	  max_tokens = 8192,
 	  -- optional
 	  api_key_name = "DEEPSEEK_API_KEY",  -- default OPENAI_API_KEY if not set
 	},
