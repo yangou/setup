@@ -168,3 +168,8 @@ vim.opt.fillchars = {
   lastline = "@"
 }
 
+
+-- exit terminal buffer
+vim.api.nvim_set_keymap('t', '<leader><Esc>', '<C-\\><C-n>', {noremap = true})
+vim.api.nvim_set_keymap('n', 'vt', ':vsplit | terminal<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'ht', ':split | terminal<CR>', { noremap = true, silent = true })
