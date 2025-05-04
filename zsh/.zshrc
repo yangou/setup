@@ -21,9 +21,9 @@ export PATH="$HOME/bin:$HOME/Workspace/bin:$PATH"
 add-zsh-hook -d precmd asdf_update_java_home
 add-zsh-hook chpwd asdf_update_java_home
 
-# golang
-export GLOBAL_GOLANG=1.23.4
-. ~/.asdf/plugins/golang/set-env.zsh
+# golang - Deprecated for asdf 0.16
+# export GLOBAL_GOLANG=1.23.4
+# . ~/.asdf/plugins/golang/set-env.zsh
 
 # bison
 export PATH="$PATH:$(brew --prefix bison)/bin"
