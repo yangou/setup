@@ -75,31 +75,32 @@ local plugins = {
     "yetone/avante.nvim",
     event = "VeryLazy",
     lazy = false,
+    enabled = false,
     version = false, -- set this if you want to always pull the latest change
     opts = {
       provider = "deepseek",
       auto_suggestions_provider = "deepseek", -- Since auto-suggestions are a high-frequency operation and therefore expensive, it is recommended to specify an inexpensive provider or even a free provider: copilot
       vendors = {
-	lm_studio = {
-	  __inherited_from = "openai",
-	  endpoint = "http://127.0.0.1:1234/v1",
-          model = "deepseek-r1-distill-qwen-14b",
-	  timeout = 30000, -- Timeout in milliseconds
-	  temperature = 0.8,
-	  max_tokens = 16384,
-	  -- optional
-	  api_key_name = "",
-	},
-	deepseek = {
-	  __inherited_from = "openai",
-	  endpoint = "https://api.deepseek.com/v1",
-	  model = "deepseek-chat",
-	  timeout = 30000, -- Timeout in milliseconds
-	  temperature = 0.8,
-	  max_tokens = 8192,
-	  -- optional
-	  api_key_name = "DEEPSEEK_API_KEY",  -- default OPENAI_API_KEY if not set
-	},
+      	lm_studio = {
+      	  __inherited_from = "openai",
+      	  endpoint = "http://127.0.0.1:1234/v1",
+                model = "deepseek-r1-distill-qwen-14b",
+      	  timeout = 30000, -- Timeout in milliseconds
+      	  temperature = 0.8,
+      	  max_tokens = 16384,
+      	  -- optional
+      	  api_key_name = "",
+      	},
+      	deepseek = {
+      	  __inherited_from = "openai",
+      	  endpoint = "https://api.deepseek.com/v1",
+      	  model = "deepseek-chat",
+      	  timeout = 30000, -- Timeout in milliseconds
+      	  temperature = 0.8,
+      	  max_tokens = 8192,
+      	  -- optional
+      	  api_key_name = "DEEPSEEK_API_KEY",  -- default OPENAI_API_KEY if not set
+      	},
       },
       behaviour = {
         auto_suggestions = true
