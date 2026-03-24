@@ -34,11 +34,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 brew update
-brew install --cask docker docker-compose flux slack wechat whatsapp dropbox google-chrome sublime-text authy rectangle zoom drawio chatbox visual-studio-code cursor
-brew install --cask intellij-idea goland pycharm datagrip
-brew install telnet ack jq tree watch wget colordiff fzf ripgrep asdf libxslt gnupg wxwidgets fop pure socat bison automake \
-     libtool openssl wxmac flex thrift kubectl helm clusterctl kind clusterawsadm \
-     ollama neovim
+brew bundle --file="$pwd/Brewfile"
 brew upgrade
 
 # install fzf
