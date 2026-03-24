@@ -3,34 +3,42 @@
 local source="${(%):-%x}"
 local pwd="$(cd "$( dirname "$source" )" && pwd)"
 
-read "USER?user: "
+if [[ $# -ne 2 ]]; then
+  echo "Usage: ./install <user> <email>"
+  exit 1
+fi
 
-read "EMAIL?email: "
+local USER=$1
+local EMAIL=$2
 
 # setup ssh
 if ! [ -f ~/.ssh/id_rsa ]; then
-  read "yn?Do you want to create ssh key? (yes/no) "
-
-  case $yn in
-    yes ) ssh-keygen -t rsa -b 4096 -C "$EMAIL";;
-    no ) echo "exiting...";
-      exit;;
-    * ) echo "invalid response";
-      exit 1;;
-  esac
+  ssh-keygen -t rsa -b 4096 -C "$EMAIL" -N "" -f ~/.ssh/id_rsa
 fi
 
 # install xcode command line tools
-sudo xcode-select --install
+if ! xcode-select -p &>/dev/null; then
+  sudo xcode-select --install
+  echo "Waiting for Xcode Command Line Tools to install..."
+  until xcode-select -p &>/dev/null; do
+    sleep 5
+  done
+fi
 
 # install rosetta2
-sudo softwareupdate --install-rosetta
+sudo softwareupdate --install-rosetta --agree-to-license
 
-# install oh-my-zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
+# install or update oh-my-zsh
+if ! [ -d ~/.oh-my-zsh ]; then
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
+else
+  git -C ~/.oh-my-zsh pull
+fi
 
 # install homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+if ! command -v brew &>/dev/null; then
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 brew update
@@ -40,13 +48,23 @@ brew upgrade
 # install fzf
 $(brew --prefix)/opt/fzf/install --all
 
-# install powerlevel10k theme
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
-git clone --depth=1 https://github.com/powerline/fonts.git ~/powerlevel10k/fonts
-~/powerlevel10k/fonts/install.sh
+# install or update powerlevel10k theme
+if ! [ -d ~/powerlevel10k ]; then
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+  git clone --depth=1 https://github.com/powerline/fonts.git ~/powerlevel10k/fonts
+  ~/powerlevel10k/fonts/install.sh
+else
+  git -C ~/powerlevel10k pull
+fi
 
-# install & configure vim, iTerm2, tmux
-rm -rf ~/maximum-awesome && git clone https://github.com/yangou/maximum-awesome.git ~/maximum-awesome && cd ~/maximum-awesome/ && rake
+# install or update vim, iTerm2, tmux
+if ! [ -d ~/maximum-awesome ]; then
+  git clone https://github.com/yangou/maximum-awesome.git ~/maximum-awesome
+fi
+cd ~/maximum-awesome
+git pull
+sed -i '' 's/File\.exists?/File.exist?/g' Rakefile 2>/dev/null || true
+rake
 cd -
 
 line="source $pwd/vim/.vimrc.bundles.local"
@@ -59,28 +77,40 @@ vim +PluginInstall +qall
 vim +GoInstallBinaries +qall
 vim +CocInstall coc-tabnine +qall
 
-cd ~/.vim/bundle/coc.nvim
-npm ci
-npm run build
-cd -
+if [ -d ~/.vim/bundle/coc.nvim ]; then
+  cd ~/.vim/bundle/coc.nvim
+  npm ci
+  npm run build
+  npm audit fix
+  cd -
+fi
 
 # configure neovim
-ln -s "$pwd/nvim" ~/.config/nvim
+if ! [ -e ~/.config/nvim ]; then
+  ln -s "$pwd/nvim" ~/.config/nvim
+fi
 
-nvim +LazyInstall +qall
-nvim +GoInstallBinaries +qall
-nvim +CocInstall coc-tabnine +qall
+nvim --headless -c "Lazy! install" -c "qa"
+nvim --headless -c "GoInstallBinaries" -c "qa"
+nvim --headless -c "CocInstall coc-tabnine" -c "qa"
 
-cd  ~/.local/share/nvim/lazy/coc.nvim
-npm ci
-npm run build
-cd -
+if [ -d ~/.local/share/nvim/lazy/coc.nvim ]; then
+  cd ~/.local/share/nvim/lazy/coc.nvim
+  npm ci
+  npm run build
+  npm audit fix
+  cd -
+fi
 
-# install iTerm2 color
-(curl -Ls https://raw.githubusercontent.com/sindresorhus/iterm2-snazzy/main/Snazzy.itermcolors > /tmp/Snazzy.itermcolors && open /tmp/Snazzy.itermcolors)
+# install iTerm2 color (manual step - run once after setup)
+# curl -Ls https://raw.githubusercontent.com/sindresorhus/iterm2-snazzy/main/Snazzy.itermcolors > /tmp/Snazzy.itermcolors && open /tmp/Snazzy.itermcolors
 
-# configure tmux
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+# install or update tmux plugin manager
+if ! [ -d ~/.tmux/plugins/tpm ]; then
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+else
+  git -C ~/.tmux/plugins/tpm pull
+fi
 line="source $pwd/tmux/.tmux.conf.local"
 grep -qF -- "$line" ~/.tmux.conf.local 2>/dev/null || echo "$line" >> ~/.tmux.conf.local
 
@@ -94,34 +124,30 @@ git config --global alias.st status
 git config --global user.name "$USER"
 git config --global user.email "$EMAIL"
 
-# install asdf plugins
-asdf plugin-add golang
-asdf plugin-add java
-asdf plugin-add erlang
-asdf plugin-add elixir
-asdf plugin-add ruby
-asdf plugin-add python
-asdf plugin-add rebar
-asdf plugin-add nodejs
-asdf plugin-add rust
+# install or update asdf plugins
+asdf plugin add golang 2>/dev/null || asdf plugin update golang
+asdf plugin add java 2>/dev/null || asdf plugin update java
+asdf plugin add erlang 2>/dev/null || asdf plugin update erlang
+asdf plugin add elixir 2>/dev/null || asdf plugin update elixir
+asdf plugin add ruby 2>/dev/null || asdf plugin update ruby
+asdf plugin add python 2>/dev/null || asdf plugin update python
+asdf plugin add rebar 2>/dev/null || asdf plugin update rebar
+asdf plugin add nodejs 2>/dev/null || asdf plugin update nodejs
+asdf plugin add rust 2>/dev/null || asdf plugin update rust
 
 # install defaults
-asdf install nodejs 23.4.0
-asdf global nodejs 23.4.0
+asdf install nodejs 22.22.1
+asdf set -u nodejs 22.22.1
 npm config set prefix ~/.npm-global
 
 asdf install golang 1.23.4
-asdf global golang 1.23.4
+asdf set -u golang 1.23.4
 
 asdf install java openjdk-23.0.1
-asdf global java openjdk-23.0.1
-
-# install vagrant plugins
-# vagrant plugin install landrush
-# vagrant plugin install vagrant-hosts
+asdf set -u java openjdk-23.0.1
 
 # enable gobin
-cat $pwd/golang/set-env.zsh > ~/.asdf/plugins/golang/set-env.zsh
+[ -f ~/.asdf/plugins/golang/set-env.zsh ] && cat $pwd/golang/set-env.zsh > ~/.asdf/plugins/golang/set-env.zsh
 
 line="source $pwd/zsh/.zprofile"
 grep -qF -- "$line" ~/.zprofile 2>/dev/null || echo "$line" >> ~/.zprofile

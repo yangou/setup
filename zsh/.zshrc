@@ -1,6 +1,6 @@
 export EDITOR='vim'
 # alias ll='ls -lha'
-unalias ll
+unalias ll 2>/dev/null || true
 
 alias vim='nvim'
 
