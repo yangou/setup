@@ -90,6 +90,44 @@ if ! [ -e ~/.config/nvim ]; then
   ln -s "$pwd/nvim" ~/.config/nvim
 fi
 
+# install claude code plugins - add marketplaces first
+claude plugin marketplace add affaan-m/everything-claude-code
+claude plugin marketplace add obra/superpowers-marketplace
+claude plugin marketplace add jarrodwatts/claude-hud
+claude plugin marketplace add anthropics/claude-code
+claude plugin marketplace add anthropics/claude-plugins-official
+claude plugin marketplace add mixedbread-ai/mgrep
+
+# install plugins
+claude plugin install everything-claude-code@everything-claude-code
+claude plugin install superpowers@superpowers-marketplace
+claude plugin install claude-hud@claude-hud
+# claude plugin install ralph-wiggum@claude-code-plugins
+# claude plugin install frontend-design@claude-code-plugins
+# claude plugin install commit-commands@claude-code-plugins
+# claude plugin install security-guidance@claude-code-plugins
+# claude plugin install pr-review-toolkit@claude-code-plugins
+# claude plugin install feature-dev@claude-code-plugins
+# claude plugin install explanatory-output-style@claude-code-plugins
+# claude plugin install code-review@claude-code-plugins
+# claude plugin install typescript-lsp@claude-plugins-official
+# claude plugin install hookify@claude-plugins-official
+# claude plugin install code-simplifier@claude-plugins-official
+# claude plugin install context7@claude-plugins-official
+# claude plugin install pyright-lsp@claude-plugins-official
+# claude plugin install mgrep@Mixedbread-Grep
+
+# install ECC rules + commands (plugin cannot provide these)
+if ! [ -d ~/Workspace/everything-claude-code ]; then
+  git clone https://github.com/affaan-m/everything-claude-code.git ~/Workspace/everything-claude-code
+else
+  git -C ~/Workspace/everything-claude-code pull
+fi
+cd ~/Workspace/everything-claude-code
+npm install
+./install.sh typescript golang python swift php
+cd -
+
 nvim --headless -c "Lazy! install" -c "qa"
 nvim --headless -c "GoInstallBinaries" -c "qa"
 nvim --headless -c "CocInstall coc-tabnine" -c "qa"
