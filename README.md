@@ -7,16 +7,18 @@ Cross-platform development environment bootstrap for macOS and Ubuntu/Debian.
 ### Fresh Ubuntu server (one-liner)
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yangou/setup/main/install) <username> <email>
+apt-get install -y git curl && git clone https://github.com/yangou/setup.git ~/Workspace/setup && ~/Workspace/setup/install <username> <email>
 ```
 
 Example:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yangou/setup/main/install) yang yang@example.com
+apt-get install -y git curl && git clone https://github.com/yangou/setup.git ~/Workspace/setup && ~/Workspace/setup/install yang yang@example.com
 ```
 
-### macOS or after cloning
+> `bash <(curl ...)` won't work because the install script sources sibling files — it must run from a cloned directory on disk.
+
+### macOS or re-running
 
 ```bash
 git clone https://github.com/yangou/setup.git ~/Workspace/setup
