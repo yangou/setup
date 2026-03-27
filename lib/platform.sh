@@ -17,9 +17,9 @@ has_gui() {
     # WindowServer runs when macOS has a graphical session
     pgrep -q WindowServer 2>/dev/null
   elif is_linux; then
-    # Check for active display server or graphical target
-    [[ -n "${DISPLAY:-}" ]] || [[ -n "${WAYLAND_DISPLAY:-}" ]] || \
-      systemctl list-units --type=target 2>/dev/null | grep -q 'graphical.target.*active'
+    # Only trust $DISPLAY / $WAYLAND_DISPLAY — systemd graphical.target is
+    # active on many headless Ubuntu servers and is not a reliable GUI indicator
+    [[ -n "${DISPLAY:-}" ]] || [[ -n "${WAYLAND_DISPLAY:-}" ]]
   else
     return 1
   fi

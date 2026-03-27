@@ -53,9 +53,11 @@ if is_linux && [[ "$(id -u)" -eq 0 ]] && [[ "$USERNAME" != "root" ]]; then
     log_info "Root password copied to $USERNAME"
   fi
 
-  # Grant sudo access
+  # Grant passwordless sudo access (required for non-interactive installs)
   usermod -aG sudo "$USERNAME"
-  log_info "$USERNAME added to sudo group"
+  echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$USERNAME"
+  chmod 440 "/etc/sudoers.d/$USERNAME"
+  log_info "$USERNAME added to sudo group (NOPASSWD)"
 
   # Copy setup repo into user's home if it's currently in root's home
   TARGET_DIR="/home/$USERNAME/Workspace/setup"
@@ -109,16 +111,21 @@ if command -v asdf &>/dev/null; then
   asdf plugin add nodejs  2>/dev/null || asdf plugin update nodejs
   asdf plugin add rust    2>/dev/null || asdf plugin update rust
 
+  # asdf 0.16+ uses `asdf set -u`; older bash versions use `asdf global`
+  asdf_global() {
+    asdf set -u "$1" "$2" 2>/dev/null || asdf global "$1" "$2"
+  }
+
   log_info "Installing default runtimes..."
   asdf install nodejs 22.22.1
-  asdf set -u nodejs 22.22.1
+  asdf_global nodejs 22.22.1
   npm config set prefix ~/.npm-global
 
   asdf install golang 1.23.4
-  asdf set -u golang 1.23.4
+  asdf_global golang 1.23.4
 
   asdf install java openjdk-23.0.1
-  asdf set -u java openjdk-23.0.1
+  asdf_global java openjdk-23.0.1
 
   # Enable gobin helper
   if [[ -f ~/.asdf/plugins/golang/set-env.zsh ]]; then
