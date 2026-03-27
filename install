@@ -260,6 +260,9 @@ else
 fi
 if [ -f ~/Workspace/everything-claude-code/install.sh ]; then
   cd ~/Workspace/everything-claude-code
+  # Override .tool-versions pinned node with our installed version
+  export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
+  asdf local nodejs 22.22.1 2>/dev/null || true
   npm install 2>/dev/null || true
   ./install.sh typescript golang python swift php
   cd "$SCRIPT_DIR"
