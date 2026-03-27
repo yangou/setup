@@ -99,15 +99,26 @@ fi
 # erlang shell
 export ERL_AFLAGS="-kernel shell_history enabled"
 
-# On Linux servers show user@hostname in prompt (ignored if ~/.p10k.zsh exists)
-if [[ "$(uname -s)" == "Linux" ]] && [[ ! -f ~/.p10k.zsh ]]; then
-  typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir vcs newline prompt_char)
+# On Linux servers: always show user@hostname in prompt.
+# POWERLEVEL9K_CONTEXT_* vars are read by p10k even when ~/.p10k.zsh exists,
+# but LEFT_PROMPT_ELEMENTS is overridden by p10k.zsh — so we patch it after sourcing.
+if [[ "$(uname -s)" == "Linux" ]]; then
   typeset -g POWERLEVEL9K_CONTEXT_ALWAYS_SHOW=true
   typeset -g POWERLEVEL9K_CONTEXT_TEMPLATE='%n@%m'
   typeset -g POWERLEVEL9K_CONTEXT_DEFAULT_FOREGROUND='yellow'
+  if [[ ! -f ~/.p10k.zsh ]]; then
+    typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir vcs newline prompt_char)
+  fi
 fi
 
 source ~/powerlevel10k/powerlevel10k.zsh-theme
+
+# If p10k.zsh exists but doesn't include context segment, inject it
+if [[ "$(uname -s)" == "Linux" ]] && [[ -f ~/.p10k.zsh ]]; then
+  if ! grep -q 'context' ~/.p10k.zsh; then
+    sed -i 's/typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(/typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context /' ~/.p10k.zsh
+  fi
+fi
 
 # functions
 ws() {
