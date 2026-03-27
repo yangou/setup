@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# macOS-specific installation functions
+
+install_macos_prerequisites() {
+  log_info "Installing macOS prerequisites..."
+
+  if ! xcode-select -p &>/dev/null; then
+    sudo xcode-select --install
+    echo "Waiting for Xcode Command Line Tools to install..."
+    until xcode-select -p &>/dev/null; do sleep 5; done
+  fi
+
+  # Rosetta 2 (only needed on Apple Silicon)
+  if [[ "$(uname -m)" == "arm64" ]]; then
+    sudo softwareupdate --install-rosetta --agree-to-license 2>/dev/null || true
+  fi
+}
+
+install_macos_homebrew() {
+  if ! command -v brew &>/dev/null; then
+    log_info "Installing Homebrew..."
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+
+  # Homebrew on Apple Silicon vs Intel
+  if [[ -f /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [[ -f /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+}
+
+install_macos_packages() {
+  local script_dir="$1"
+  local has_gui="$2"
+
+  install_macos_homebrew
+  brew update
+
+  if [[ "$has_gui" == "yes" ]]; then
+    log_info "Installing all packages (desktop mode)..."
+    brew bundle --file="$script_dir/Brewfile"
+  else
+    log_info "Installing CLI-only packages (headless mode)..."
+    # Strip cask and vscode lines for headless macOS (e.g., Mac Mini server)
+    grep -vE '^cask |^vscode ' "$script_dir/Brewfile" | brew bundle --file=-
+  fi
+
+  brew upgrade
+
+  # fzf key bindings and shell completion
+  "$(brew --prefix)/opt/fzf/install" --all 2>/dev/null || true
+}

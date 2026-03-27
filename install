@@ -1,197 +1,220 @@
-#! /bin/zsh
+#!/usr/bin/env bash
+#
+# Cross-platform development environment bootstrap.
+# Supports: macOS (desktop & headless), Ubuntu/Debian (server & desktop).
+#
+# Usage: ./install <user> <email>
 
-local source="${(%):-%x}"
-local pwd="$(cd "$( dirname "$source" )" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/platform.sh"
 
 if [[ $# -ne 2 ]]; then
   echo "Usage: ./install <user> <email>"
   exit 1
 fi
 
-local USER=$1
-local EMAIL=$2
+USERNAME="$1"
+EMAIL="$2"
+OS="$(detect_os)"
+GUI=$(has_gui && echo "yes" || echo "no")
 
-# setup ssh
+log_info "Platform: $OS | GUI: $GUI"
+
+if [[ "$OS" == "unsupported" ]]; then
+  log_error "Unsupported operating system: $(uname -s)"
+  exit 1
+fi
+
+# ── SSH ─────────────────────────────────────────────────────────────────────
 if ! [ -f ~/.ssh/id_rsa ]; then
+  log_info "Generating SSH key..."
+  mkdir -p ~/.ssh && chmod 700 ~/.ssh
   ssh-keygen -t rsa -b 4096 -C "$EMAIL" -N "" -f ~/.ssh/id_rsa
 fi
 
-# install xcode command line tools
-if ! xcode-select -p &>/dev/null; then
-  sudo xcode-select --install
-  echo "Waiting for Xcode Command Line Tools to install..."
-  until xcode-select -p &>/dev/null; do
-    sleep 5
-  done
+# ── Platform-specific packages ──────────────────────────────────────────────
+if is_macos; then
+  source "$SCRIPT_DIR/lib/macos.sh"
+  install_macos_prerequisites
+  install_macos_packages "$SCRIPT_DIR" "$GUI"
+elif is_linux; then
+  source "$SCRIPT_DIR/lib/linux.sh"
+  install_linux_all "$GUI"
 fi
 
-# install rosetta2
-sudo softwareupdate --install-rosetta --agree-to-license
+# ── asdf plugins & runtimes ─────────────────────────────────────────────────
+# (asdf is installed via Homebrew on macOS, via git clone on Linux)
+log_info "Setting up asdf plugins..."
 
-# install or update oh-my-zsh
+# Ensure asdf is on PATH
+if is_macos && command -v brew &>/dev/null; then
+  source "$(brew --prefix asdf 2>/dev/null)/libexec/asdf.sh" 2>/dev/null || true
+elif [[ -f "$HOME/.asdf/asdf.sh" ]]; then
+  export PATH="$HOME/.asdf/bin:$PATH"
+  source "$HOME/.asdf/asdf.sh"
+fi
+
+if command -v asdf &>/dev/null; then
+  asdf plugin add golang  2>/dev/null || asdf plugin update golang
+  asdf plugin add java    2>/dev/null || asdf plugin update java
+  asdf plugin add erlang  2>/dev/null || asdf plugin update erlang
+  asdf plugin add elixir  2>/dev/null || asdf plugin update elixir
+  asdf plugin add ruby    2>/dev/null || asdf plugin update ruby
+  asdf plugin add python  2>/dev/null || asdf plugin update python
+  asdf plugin add rebar   2>/dev/null || asdf plugin update rebar
+  asdf plugin add nodejs  2>/dev/null || asdf plugin update nodejs
+  asdf plugin add rust    2>/dev/null || asdf plugin update rust
+
+  log_info "Installing default runtimes..."
+  asdf install nodejs 22.22.1
+  asdf set -u nodejs 22.22.1
+  npm config set prefix ~/.npm-global
+
+  asdf install golang 1.23.4
+  asdf set -u golang 1.23.4
+
+  asdf install java openjdk-23.0.1
+  asdf set -u java openjdk-23.0.1
+
+  # Enable gobin helper
+  if [[ -f ~/.asdf/plugins/golang/set-env.zsh ]]; then
+    cat "$SCRIPT_DIR/golang/set-env.zsh" > ~/.asdf/plugins/golang/set-env.zsh
+  fi
+else
+  log_warn "asdf not found; skipping runtime installation"
+fi
+
+# ── Oh My Zsh ───────────────────────────────────────────────────────────────
+log_info "Setting up Oh My Zsh..."
 if ! [ -d ~/.oh-my-zsh ]; then
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
 else
   git -C ~/.oh-my-zsh pull
 fi
 
-# install homebrew
-if ! command -v brew &>/dev/null; then
-  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
-brew update
-brew bundle --file="$pwd/Brewfile"
-brew upgrade
-
-# install fzf
-$(brew --prefix)/opt/fzf/install --all
-
-# install or update powerlevel10k theme
+# ── Powerlevel10k ───────────────────────────────────────────────────────────
+log_info "Setting up Powerlevel10k..."
 if ! [ -d ~/powerlevel10k ]; then
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
   git clone --depth=1 https://github.com/powerline/fonts.git ~/powerlevel10k/fonts
-  ~/powerlevel10k/fonts/install.sh
+  # Only install fonts if there's a GUI to display them
+  if [[ "$GUI" == "yes" ]]; then
+    ~/powerlevel10k/fonts/install.sh
+  fi
 else
   git -C ~/powerlevel10k pull
 fi
 
-# install or update vim, iTerm2, tmux
+# ── Vim (maximum-awesome) ──────────────────────────────────────────────────
+log_info "Setting up Vim..."
 if ! [ -d ~/maximum-awesome ]; then
   git clone https://github.com/yangou/maximum-awesome.git ~/maximum-awesome
 fi
 cd ~/maximum-awesome
 git pull
-sed -i '' 's/File\.exists?/File.exist?/g' Rakefile 2>/dev/null || true
-rake
-cd -
+sed_inplace 's/File\.exists?/File.exist?/g' Rakefile 2>/dev/null || true
+if command -v rake &>/dev/null; then
+  rake 2>/dev/null || log_warn "rake failed - you may need to run it manually"
+fi
+cd "$SCRIPT_DIR"
 
-line="source $pwd/vim/.vimrc.bundles.local"
-grep -qF -- "$line" ~/.vimrc.bundles.local 2>/dev/null || echo "$line" >> ~/.vimrc.bundles.local
+ensure_line "source $SCRIPT_DIR/vim/.vimrc.bundles.local" ~/.vimrc.bundles.local
+ensure_line "source $SCRIPT_DIR/vim/.vimrc.local" ~/.vimrc.local
 
-line="source $pwd/vim/.vimrc.local"
-grep -qF -- "$line" ~/.vimrc.local 2>/dev/null || echo "$line" >> ~/.vimrc.local
-
-vim +PluginInstall +qall
-vim +GoInstallBinaries +qall
-vim +CocInstall coc-tabnine +qall
+vim +PluginInstall +qall 2>/dev/null || true
+vim +GoInstallBinaries +qall 2>/dev/null || true
 
 if [ -d ~/.vim/bundle/coc.nvim ]; then
   cd ~/.vim/bundle/coc.nvim
-  npm ci
-  npm run build
-  npm audit fix
-  cd -
+  npm ci 2>/dev/null || true
+  npm run build 2>/dev/null || true
+  npm audit fix 2>/dev/null || true
+  cd "$SCRIPT_DIR"
 fi
 
-# configure neovim
+# ── Neovim ──────────────────────────────────────────────────────────────────
+log_info "Setting up Neovim..."
+mkdir -p ~/.config
 if ! [ -e ~/.config/nvim ]; then
-  ln -s "$pwd/nvim" ~/.config/nvim
+  ln -s "$SCRIPT_DIR/nvim" ~/.config/nvim
 fi
 
-# install claude code plugins - add marketplaces first
-claude plugin marketplace add affaan-m/everything-claude-code
-claude plugin marketplace add obra/superpowers-marketplace
-claude plugin marketplace add jarrodwatts/claude-hud
-claude plugin marketplace add anthropics/claude-code
-claude plugin marketplace add anthropics/claude-plugins-official
-claude plugin marketplace add mixedbread-ai/mgrep
+nvim --headless -c "Lazy! install" -c "qa" 2>/dev/null || true
+nvim --headless -c "GoInstallBinaries" -c "qa" 2>/dev/null || true
 
-# install plugins
-claude plugin install everything-claude-code@everything-claude-code
-claude plugin install superpowers@superpowers-marketplace
-claude plugin install claude-hud@claude-hud
-# claude plugin install ralph-wiggum@claude-code-plugins
-# claude plugin install frontend-design@claude-code-plugins
-# claude plugin install commit-commands@claude-code-plugins
-# claude plugin install security-guidance@claude-code-plugins
-# claude plugin install pr-review-toolkit@claude-code-plugins
-# claude plugin install feature-dev@claude-code-plugins
-# claude plugin install explanatory-output-style@claude-code-plugins
-# claude plugin install code-review@claude-code-plugins
-# claude plugin install typescript-lsp@claude-plugins-official
-# claude plugin install hookify@claude-plugins-official
-# claude plugin install code-simplifier@claude-plugins-official
-# claude plugin install context7@claude-plugins-official
-# claude plugin install pyright-lsp@claude-plugins-official
-# claude plugin install mgrep@Mixedbread-Grep
+if [ -d ~/.local/share/nvim/lazy/coc.nvim ]; then
+  cd ~/.local/share/nvim/lazy/coc.nvim
+  npm ci 2>/dev/null || true
+  npm run build 2>/dev/null || true
+  npm audit fix 2>/dev/null || true
+  cd "$SCRIPT_DIR"
+fi
 
-# install ECC rules + commands (plugin cannot provide these)
+# ── Claude Code plugins ────────────────────────────────────────────────────
+if command -v claude &>/dev/null; then
+  log_info "Setting up Claude Code plugins..."
+  claude plugin marketplace add affaan-m/everything-claude-code
+  claude plugin marketplace add obra/superpowers-marketplace
+  claude plugin marketplace add jarrodwatts/claude-hud
+  claude plugin marketplace add anthropics/claude-code
+  claude plugin marketplace add anthropics/claude-plugins-official
+  claude plugin marketplace add mixedbread-ai/mgrep
+
+  claude plugin install everything-claude-code@everything-claude-code
+  claude plugin install superpowers@superpowers-marketplace
+  claude plugin install claude-hud@claude-hud
+else
+  log_warn "claude not found; skipping Claude Code plugin setup"
+fi
+
+# ── Everything Claude Code rules ────────────────────────────────────────────
+mkdir -p ~/Workspace
 if ! [ -d ~/Workspace/everything-claude-code ]; then
   git clone https://github.com/affaan-m/everything-claude-code.git ~/Workspace/everything-claude-code
 else
   git -C ~/Workspace/everything-claude-code pull
 fi
-cd ~/Workspace/everything-claude-code
-npm install
-./install.sh typescript golang python swift php
-cd -
-
-nvim --headless -c "Lazy! install" -c "qa"
-nvim --headless -c "GoInstallBinaries" -c "qa"
-nvim --headless -c "CocInstall coc-tabnine" -c "qa"
-
-if [ -d ~/.local/share/nvim/lazy/coc.nvim ]; then
-  cd ~/.local/share/nvim/lazy/coc.nvim
-  npm ci
-  npm run build
-  npm audit fix
-  cd -
+if [ -f ~/Workspace/everything-claude-code/install.sh ]; then
+  cd ~/Workspace/everything-claude-code
+  npm install 2>/dev/null || true
+  ./install.sh typescript golang python swift php
+  cd "$SCRIPT_DIR"
 fi
 
-# install iTerm2 color (manual step - run once after setup)
-# curl -Ls https://raw.githubusercontent.com/sindresorhus/iterm2-snazzy/main/Snazzy.itermcolors > /tmp/Snazzy.itermcolors && open /tmp/Snazzy.itermcolors
-
-# install or update tmux plugin manager
+# ── Tmux ────────────────────────────────────────────────────────────────────
+log_info "Setting up Tmux..."
 if ! [ -d ~/.tmux/plugins/tpm ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 else
   git -C ~/.tmux/plugins/tpm pull
 fi
-line="source $pwd/tmux/.tmux.conf.local"
-grep -qF -- "$line" ~/.tmux.conf.local 2>/dev/null || echo "$line" >> ~/.tmux.conf.local
+ensure_line "source $SCRIPT_DIR/tmux/.tmux.conf.local" ~/.tmux.conf.local
 
-# configure git
+# ── Git ─────────────────────────────────────────────────────────────────────
+log_info "Configuring Git..."
 git config --global alias.co checkout
 git config --global alias.br branch
 git config --global alias.cp cherry-pick
 git config --global alias.cm commit
 git config --global alias.df diff
 git config --global alias.st status
-git config --global user.name "$USER"
+git config --global user.name "$USERNAME"
 git config --global user.email "$EMAIL"
 
-# install or update asdf plugins
-asdf plugin add golang 2>/dev/null || asdf plugin update golang
-asdf plugin add java 2>/dev/null || asdf plugin update java
-asdf plugin add erlang 2>/dev/null || asdf plugin update erlang
-asdf plugin add elixir 2>/dev/null || asdf plugin update elixir
-asdf plugin add ruby 2>/dev/null || asdf plugin update ruby
-asdf plugin add python 2>/dev/null || asdf plugin update python
-asdf plugin add rebar 2>/dev/null || asdf plugin update rebar
-asdf plugin add nodejs 2>/dev/null || asdf plugin update nodejs
-asdf plugin add rust 2>/dev/null || asdf plugin update rust
+# ── Shell config ────────────────────────────────────────────────────────────
+log_info "Configuring shell..."
+ensure_line "source $SCRIPT_DIR/zsh/.zprofile" ~/.zprofile
+ensure_line "source $SCRIPT_DIR/zsh/.zshrc" ~/.zshrc
 
-# install defaults
-asdf install nodejs 22.22.1
-asdf set -u nodejs 22.22.1
-npm config set prefix ~/.npm-global
+# Set zsh as default shell if it isn't already
+if [[ "$(basename "$SHELL")" != "zsh" ]]; then
+  log_info "Setting zsh as default shell..."
+  local_zsh="$(which zsh)"
+  if is_linux; then
+    _sudo chsh -s "$local_zsh" "$USER"
+  else
+    chsh -s "$local_zsh"
+  fi
+fi
 
-asdf install golang 1.23.4
-asdf set -u golang 1.23.4
-
-asdf install java openjdk-23.0.1
-asdf set -u java openjdk-23.0.1
-
-# enable gobin
-[ -f ~/.asdf/plugins/golang/set-env.zsh ] && cat $pwd/golang/set-env.zsh > ~/.asdf/plugins/golang/set-env.zsh
-
-line="source $pwd/zsh/.zprofile"
-grep -qF -- "$line" ~/.zprofile 2>/dev/null || echo "$line" >> ~/.zprofile
-
-line="source $pwd/zsh/.zshrc"
-grep -qF -- "$line" ~/.zshrc 2>/dev/null || echo "$line" >> ~/.zshrc
-
-source ~/.zprofile
-source ~/.zshrc
+log_info "Setup complete! Restart your shell or run: exec zsh -l"

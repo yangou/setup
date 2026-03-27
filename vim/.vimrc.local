@@ -3,7 +3,15 @@ try
 catch
 endtry
 
-set rtp+=/opt/homebrew/opt/fzf
+if isdirectory('/opt/homebrew/opt/fzf')
+  set rtp+=/opt/homebrew/opt/fzf
+elseif isdirectory('/usr/local/opt/fzf')
+  set rtp+=/usr/local/opt/fzf
+elseif isdirectory('/usr/share/doc/fzf')
+  set rtp+=/usr/share/doc/fzf
+elseif isdirectory('/usr/share/fzf')
+  set rtp+=/usr/share/fzf
+endif
 set termguicolors
 set nowrap
 set cursorline
