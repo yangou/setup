@@ -176,9 +176,11 @@ install_linux_asdf() {
     git clone https://github.com/asdf-vm/asdf.git ~/.asdf
   fi
 
-  # Checkout latest tag
+  # Pin to v0.15.0 — the last stable bash implementation.
+  # v0.16+ is a Go rewrite with a different install method; checking out its
+  # tag while still sourcing asdf.sh prints a migration notice on every shell op.
   cd ~/.asdf
-  git checkout "$(git describe --abbrev=0 --tags)" 2>/dev/null || true
+  git checkout v0.15.0 2>/dev/null || true
   cd - >/dev/null
 
   # Make asdf available for the rest of this script
