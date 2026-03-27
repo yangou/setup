@@ -60,6 +60,9 @@ set -euo pipefail
 if ! id "$USERNAME" &>/dev/null; then
   useradd -m -s /bin/bash "$USERNAME"
   echo "==> Created user $USERNAME"
+else
+  usermod -s /bin/bash "$USERNAME"
+  echo "==> Updated shell for existing user $USERNAME"
 fi
 
 mkdir -p "/home/$USERNAME/.ssh"
