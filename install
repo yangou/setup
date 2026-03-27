@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 #
 # Cross-platform development environment bootstrap.
 # Supports: macOS (desktop & headless), Ubuntu/Debian (server & desktop).
@@ -99,15 +100,15 @@ elif [[ -f "$HOME/.asdf/asdf.sh" ]]; then
 fi
 
 if command -v asdf &>/dev/null; then
-  asdf plugin add golang  2>/dev/null || asdf plugin update golang
-  asdf plugin add java    2>/dev/null || asdf plugin update java
-  asdf plugin add erlang  2>/dev/null || asdf plugin update erlang
-  asdf plugin add elixir  2>/dev/null || asdf plugin update elixir
-  asdf plugin add ruby    2>/dev/null || asdf plugin update ruby
-  asdf plugin add python  2>/dev/null || asdf plugin update python
-  asdf plugin add rebar   2>/dev/null || asdf plugin update rebar
-  asdf plugin add nodejs  2>/dev/null || asdf plugin update nodejs
-  asdf plugin add rust    2>/dev/null || asdf plugin update rust
+  # add fails when the plugin already exists — suppress that and fall back to update.
+  # If update also fails (e.g. network down but plugin is already usable), warn only.
+  asdf_plugin_add() {
+    asdf plugin add "$1" 2>/dev/null || asdf plugin update "$1" || log_warn "asdf: could not add/update plugin: $1"
+  }
+
+  for plugin in golang java erlang elixir ruby python rebar nodejs rust; do
+    asdf_plugin_add "$plugin"
+  done
 
   # asdf 0.16+ uses `asdf set -u`; older bash versions use `asdf global`
   asdf_global() {
@@ -118,6 +119,20 @@ if command -v asdf &>/dev/null; then
   asdf install nodejs 22.22.1
   asdf_global nodejs 22.22.1
   npm config set prefix ~/.npm-global
+
+  # On Linux, symlink node into /usr/local/bin so non-login processes (e.g.
+  # vim/coc.nvim, systemd services) can find it without needing asdf shims
+  # on $PATH.  This is safe to repeat — -sf overwrites stale links.
+  if is_linux; then
+    node_bin="$(asdf which node 2>/dev/null)" || true
+    npm_bin="$(asdf which npm 2>/dev/null)" || true
+    if [[ -n "$node_bin" ]]; then
+      _sudo ln -sf "$node_bin" /usr/local/bin/node
+    fi
+    if [[ -n "$npm_bin" ]]; then
+      _sudo ln -sf "$npm_bin" /usr/local/bin/npm
+    fi
+  fi
 
   asdf install golang 1.23.4
   asdf_global golang 1.23.4
@@ -135,10 +150,14 @@ fi
 
 # ── Oh My Zsh ───────────────────────────────────────────────────────────────
 log_info "Setting up Oh My Zsh..."
-if ! [ -d ~/.oh-my-zsh ]; then
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sed 's/exec zsh -l//g')"
+if ! command -v zsh &>/dev/null; then
+  log_warn "zsh not installed — skipping Oh My Zsh setup"
+elif ! [ -d ~/.oh-my-zsh ]; then
+  curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh \
+    | sed 's/exec zsh -l//g' \
+    | sh
 else
-  git -C ~/.oh-my-zsh pull
+  git -C ~/.oh-my-zsh pull || log_warn "Could not update Oh My Zsh (network?)"
 fi
 
 # ── Powerlevel10k ───────────────────────────────────────────────────────────
@@ -148,10 +167,10 @@ if ! [ -d ~/powerlevel10k ]; then
   git clone --depth=1 https://github.com/powerline/fonts.git ~/powerlevel10k/fonts
   # Only install fonts if there's a GUI to display them
   if [[ "$GUI" == "yes" ]]; then
-    ~/powerlevel10k/fonts/install.sh
+    ~/powerlevel10k/fonts/install.sh || log_warn "Powerlevel10k fonts install failed"
   fi
 else
-  git -C ~/powerlevel10k pull
+  git -C ~/powerlevel10k pull || log_warn "Could not update Powerlevel10k (network?)"
 fi
 
 # ── Vim (maximum-awesome) ──────────────────────────────────────────────────
@@ -160,7 +179,7 @@ if ! [ -d ~/maximum-awesome ]; then
   git clone https://github.com/yangou/maximum-awesome.git ~/maximum-awesome
 fi
 cd ~/maximum-awesome
-git pull
+git pull || log_warn "Could not update maximum-awesome (network?)"
 sed_inplace 's/File\.exists?/File.exist?/g' Rakefile 2>/dev/null || true
 if is_macos && command -v rake &>/dev/null; then
   # rake sets up symlinks and installs deps via brew — macOS only
@@ -188,15 +207,18 @@ vim -es -u ~/.vimrc +PluginInstall +qall 2>/dev/null || true
 log_info "Installing Go binaries for vim-go (this may take a few minutes)..."
 vim -es -u ~/.vimrc +GoInstallBinaries +qall 2>/dev/null || true
 
-if [ -d ~/.vim/bundle/coc.nvim ]; then
-  cd ~/.vim/bundle/coc.nvim
-  # Ensure npm is available via asdf shims
+build_coc_nvim() {
+  local dir="$1" flavor="$2"
+  [ -d "$dir" ] || return 0
+  cd "$dir"
   export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
-  npm ci 2>/dev/null || true
-  npm run build 2>/dev/null || true
+  npm ci        || log_warn "coc.nvim ($flavor): npm ci failed"
+  npm run build || log_warn "coc.nvim ($flavor): build failed"
   npm audit fix 2>/dev/null || true
   cd "$SCRIPT_DIR"
-fi
+}
+
+build_coc_nvim ~/.vim/bundle/coc.nvim vim
 
 # ── Neovim ──────────────────────────────────────────────────────────────────
 log_info "Setting up Neovim..."
@@ -208,65 +230,61 @@ fi
 nvim --headless -c "Lazy! install" -c "qa" 2>/dev/null || true
 nvim --headless -c "GoInstallBinaries" -c "qa" 2>/dev/null || true
 
-if [ -d ~/.local/share/nvim/lazy/coc.nvim ]; then
-  cd ~/.local/share/nvim/lazy/coc.nvim
-  export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
-  npm ci 2>/dev/null || true
-  npm run build 2>/dev/null || true
-  npm audit fix 2>/dev/null || true
-  cd "$SCRIPT_DIR"
-fi
+build_coc_nvim ~/.local/share/nvim/lazy/coc.nvim nvim
 
 # ── Claude Code (Linux: install via npm; macOS: installed via Brewfile cask) ──
 if is_linux && ! command -v claude &>/dev/null; then
   log_info "Installing Claude Code..."
   export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
-  npm install -g @anthropic-ai/claude-code 2>/dev/null || true
+  npm install -g @anthropic-ai/claude-code
   # npm installs to ~/.npm-global/bin (set earlier via `npm config set prefix`)
   # must update PATH now so the plugin section below can find `claude`
   export PATH="$HOME/.npm-global/bin:$PATH"
 fi
 
 # ── Claude Code plugins ────────────────────────────────────────────────────
+# Marketplace add is idempotent; plugin install can fail if a plugin is
+# renamed/removed upstream — warn and continue rather than abort.
 if command -v claude &>/dev/null; then
   log_info "Setting up Claude Code plugins..."
-  claude plugin marketplace add affaan-m/everything-claude-code
-  claude plugin marketplace add obra/superpowers-marketplace
-  claude plugin marketplace add jarrodwatts/claude-hud
-  claude plugin marketplace add anthropics/claude-code
-  claude plugin marketplace add anthropics/claude-plugins-official
-  claude plugin marketplace add mixedbread-ai/mgrep
+  claude plugin marketplace add affaan-m/everything-claude-code    || log_warn "marketplace add failed: everything-claude-code"
+  claude plugin marketplace add obra/superpowers-marketplace        || log_warn "marketplace add failed: superpowers-marketplace"
+  claude plugin marketplace add jarrodwatts/claude-hud              || log_warn "marketplace add failed: claude-hud"
+  claude plugin marketplace add anthropics/claude-code              || log_warn "marketplace add failed: claude-code-plugins"
+  claude plugin marketplace add anthropics/claude-plugins-official  || log_warn "marketplace add failed: claude-plugins-official"
+  claude plugin marketplace add mixedbread-ai/mgrep                 || log_warn "marketplace add failed: mgrep"
 
-  claude plugin install everything-claude-code@everything-claude-code
-  claude plugin install superpowers@superpowers-marketplace
-  claude plugin install claude-hud@claude-hud
+  claude plugin install everything-claude-code@everything-claude-code  || log_warn "plugin install failed: everything-claude-code"
+  claude plugin install superpowers@superpowers-marketplace            || log_warn "plugin install failed: superpowers"
+  claude plugin install claude-hud@claude-hud                         || log_warn "plugin install failed: claude-hud"
 
   # claude-code-plugins (anthropics/claude-code marketplace)
-  claude plugin install ralph-wiggum@claude-code-plugins
-  claude plugin install frontend-design@claude-code-plugins
-  claude plugin install commit-commands@claude-code-plugins
-  claude plugin install security-guidance@claude-code-plugins
-  claude plugin install pr-review-toolkit@claude-code-plugins
-  claude plugin install feature-dev@claude-code-plugins
-  claude plugin install explanatory-output-style@claude-code-plugins
-  claude plugin install code-review@claude-code-plugins
+  claude plugin install ralph-wiggum@claude-code-plugins          || log_warn "plugin install failed: ralph-wiggum"
+  claude plugin install frontend-design@claude-code-plugins        || log_warn "plugin install failed: frontend-design"
+  claude plugin install commit-commands@claude-code-plugins        || log_warn "plugin install failed: commit-commands"
+  claude plugin install security-guidance@claude-code-plugins      || log_warn "plugin install failed: security-guidance"
+  claude plugin install pr-review-toolkit@claude-code-plugins      || log_warn "plugin install failed: pr-review-toolkit"
+  claude plugin install feature-dev@claude-code-plugins            || log_warn "plugin install failed: feature-dev"
+  claude plugin install explanatory-output-style@claude-code-plugins || log_warn "plugin install failed: explanatory-output-style"
+  claude plugin install code-review@claude-code-plugins            || log_warn "plugin install failed: code-review"
 
   # claude-plugins-official (anthropics/claude-plugins-official marketplace)
-  claude plugin install typescript-lsp@claude-plugins-official
-  claude plugin install hookify@claude-plugins-official
-  claude plugin install code-simplifier@claude-plugins-official
-  claude plugin install context7@claude-plugins-official
-  claude plugin install pyright-lsp@claude-plugins-official
+  claude plugin install typescript-lsp@claude-plugins-official     || log_warn "plugin install failed: typescript-lsp"
+  claude plugin install hookify@claude-plugins-official            || log_warn "plugin install failed: hookify"
+  claude plugin install code-simplifier@claude-plugins-official    || log_warn "plugin install failed: code-simplifier"
+  claude plugin install context7@claude-plugins-official           || log_warn "plugin install failed: context7"
+  claude plugin install pyright-lsp@claude-plugins-official        || log_warn "plugin install failed: pyright-lsp"
 
   # mgrep (mixedbread-ai/mgrep marketplace)
-  claude plugin install mgrep@Mixedbread-Grep
+  claude plugin install mgrep@Mixedbread-Grep                      || log_warn "plugin install failed: mgrep"
 else
   log_warn "claude not found; skipping Claude Code plugin setup"
 fi
 
 # ── Everything Claude Code rules ────────────────────────────────────────────
 # everything-claude-code lives as a git submodule at $SCRIPT_DIR/claude/everything-claude-code
-git -C "$SCRIPT_DIR" submodule update --init --remote claude/everything-claude-code 2>/dev/null || true
+git -C "$SCRIPT_DIR" submodule update --init --remote claude/everything-claude-code \
+  || log_warn "Could not update everything-claude-code submodule (network?)"
 if [ -f "$SCRIPT_DIR/claude/everything-claude-code/install.sh" ]; then
   cd "$SCRIPT_DIR/claude/everything-claude-code"
   export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
@@ -274,11 +292,11 @@ if [ -f "$SCRIPT_DIR/claude/everything-claude-code/install.sh" ]; then
   if [ -f .tool-versions ]; then
     ecc_node="$(grep '^nodejs' .tool-versions | awk '{print $2}')"
     if [[ -n "$ecc_node" ]]; then
-      asdf install nodejs "$ecc_node" 2>/dev/null || true
-      asdf local nodejs "$ecc_node" 2>/dev/null || true
+      asdf install nodejs "$ecc_node" || log_warn "Could not install node $ecc_node for ecc"
+      asdf local nodejs "$ecc_node"   || log_warn "Could not set local node $ecc_node for ecc"
     fi
   fi
-  npm install 2>/dev/null || true
+  npm install || log_warn "everything-claude-code: npm install failed"
   ./install.sh typescript golang python swift php cpp csharp java kotlin perl rust
   cd "$SCRIPT_DIR"
 fi
@@ -288,7 +306,7 @@ log_info "Setting up Tmux..."
 if ! [ -d ~/.tmux/plugins/tpm ]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 else
-  git -C ~/.tmux/plugins/tpm pull
+  git -C ~/.tmux/plugins/tpm pull || log_warn "Could not update tpm (network?)"
 fi
 ensure_line "source $SCRIPT_DIR/tmux/.tmux.conf.local" ~/.tmux.conf.local
 
@@ -316,12 +334,16 @@ chmod 644 "$SCRIPT_DIR/zsh/.p10k.zsh"
 # On Linux: use `usermod -s` via sudo — `chsh` requires an interactive password
 # prompt and silently fails in non-interactive SSH sessions.
 if [[ "$(basename "$SHELL")" != "zsh" ]]; then
-  log_info "Setting zsh as default shell..."
-  local_zsh="$(which zsh)"
-  if is_linux; then
-    _sudo usermod -s "$local_zsh" "$USER"
+  local_zsh="$(which zsh 2>/dev/null)"
+  if [[ -z "$local_zsh" ]]; then
+    log_warn "zsh not found in PATH — skipping default shell change (was zsh installed?)"
   else
-    chsh -s "$local_zsh"
+    log_info "Setting zsh as default shell..."
+    if is_linux; then
+      _sudo usermod -s "$local_zsh" "$USER"
+    else
+      chsh -s "$local_zsh"
+    fi
   fi
 fi
 

@@ -6,8 +6,27 @@
 # curl/binary for tools that genuinely have no apt repo (kind,
 # kustomize, AWS CLI v2, asdf).
 
+wait_for_dpkg_lock() {
+  local waited=0
+  while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+    if [[ $waited -eq 0 ]]; then
+      log_info "Waiting for dpkg lock to be released (unattended-upgrades?)..."
+    fi
+    (( waited += 5 ))
+    if [[ $waited -ge 300 ]]; then
+      log_warn "dpkg lock still held after 5 minutes — proceeding anyway"
+      break
+    fi
+    sleep 5
+  done
+}
+
 install_linux_apt_repos() {
   log_info "Adding third-party apt repositories..."
+
+  # Wait for any background apt process (e.g. unattended-upgrades on fresh cloud VMs)
+  # before the very first apt call — covers both the prereq install and all subsequent ones.
+  wait_for_dpkg_lock
 
   # Prerequisites for adding repos
   _sudo apt-get update
@@ -120,14 +139,26 @@ install_linux_packages() {
     helm
   )
 
-  # Install packages one-by-one so a single failure doesn't abort the rest
+  # Filter to available packages first (skip anything not in apt cache)
+  local available=()
   for pkg in "${packages[@]}"; do
     if apt-cache show "$pkg" &>/dev/null 2>&1; then
-      _sudo apt-get install -y "$pkg" || log_warn "Failed to install: $pkg (continuing)"
+      available+=("$pkg")
     else
       log_warn "Package not available: $pkg (skipping)"
     fi
   done
+
+  # Install all available packages in one shot (single needrestart run at the end).
+  # Fall back to one-by-one only if the bulk call fails, to isolate the bad package.
+  if [[ ${#available[@]} -gt 0 ]]; then
+    if ! _sudo apt-get install -y "${available[@]}"; then
+      log_warn "Bulk install failed — retrying packages individually..."
+      for pkg in "${available[@]}"; do
+        _sudo apt-get install -y "$pkg" || log_warn "Failed to install: $pkg (continuing)"
+      done
+    fi
+  fi
 
   # Docker: add current user to docker group
   _sudo usermod -aG docker "$USER" 2>/dev/null || true
@@ -152,6 +183,10 @@ install_linux_kind() {
   local arch kind_ver
   arch="$(dpkg --print-architecture)"
   kind_ver="$(curl -fsSL https://api.github.com/repos/kubernetes-sigs/kind/releases/latest | jq -r .tag_name)"
+  if [[ -z "$kind_ver" || "$kind_ver" == "null" ]]; then
+    log_warn "Could not determine kind version (GitHub API failed?) — skipping kind install"
+    return
+  fi
   curl -fsSL "https://kind.sigs.k8s.io/dl/${kind_ver}/kind-linux-${arch}" -o /tmp/kind
   _sudo install -o root -g root -m 0755 /tmp/kind /usr/local/bin/kind
   rm -f /tmp/kind
