@@ -8,13 +8,14 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/platform.sh"
 
-if [[ $# -ne 2 ]]; then
-  echo "Usage: ./install <user> <email>"
+if [[ $# -lt 2 ]]; then
+  echo "Usage: ./install <user> <email> [hostname]"
   exit 1
 fi
 
 USERNAME="$1"
 EMAIL="$2"
+HOSTNAME_ARG="${3:-}"  # optional; Linux only — ignored on macOS
 OS="$(detect_os)"
 GUI=$(has_gui && echo "yes" || echo "no")
 
@@ -88,8 +89,20 @@ if is_linux && [[ "$(id -u)" -eq 0 ]] && [[ "$USERNAME" != "root" ]]; then
     chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/Workspace"
   fi
 
+  # Set hostname if provided (do this as root before switching users)
+  if [[ -n "$HOSTNAME_ARG" ]]; then
+    hostnamectl set-hostname "$HOSTNAME_ARG"
+    # Update /etc/hosts so the new hostname resolves locally
+    if grep -q "127.0.1.1" /etc/hosts; then
+      sed_inplace "s/^127\.0\.1\.1.*/127.0.1.1\t$HOSTNAME_ARG/" /etc/hosts
+    else
+      echo "127.0.1.1	$HOSTNAME_ARG" >> /etc/hosts
+    fi
+    log_info "Hostname set to $HOSTNAME_ARG"
+  fi
+
   log_info "Switching to $USERNAME — re-running install..."
-  exec su -l "$USERNAME" -c "bash '$TARGET_DIR/install' '$USERNAME' '$EMAIL'"
+  exec su -l "$USERNAME" -c "bash '$TARGET_DIR/install' '$USERNAME' '$EMAIL' '$HOSTNAME_ARG'"
 fi
 
 # ── SSH ─────────────────────────────────────────────────────────────────────

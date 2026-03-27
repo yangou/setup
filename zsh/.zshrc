@@ -99,6 +99,14 @@ fi
 # erlang shell
 export ERL_AFLAGS="-kernel shell_history enabled"
 
+# On Linux servers show user@hostname in prompt (ignored if ~/.p10k.zsh exists)
+if [[ "$(uname -s)" == "Linux" ]] && [[ ! -f ~/.p10k.zsh ]]; then
+  typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir vcs newline prompt_char)
+  typeset -g POWERLEVEL9K_CONTEXT_ALWAYS_SHOW=true
+  typeset -g POWERLEVEL9K_CONTEXT_TEMPLATE='%n@%m'
+  typeset -g POWERLEVEL9K_CONTEXT_DEFAULT_FOREGROUND='yellow'
+fi
+
 source ~/powerlevel10k/powerlevel10k.zsh-theme
 
 # functions
