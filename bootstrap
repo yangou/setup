@@ -4,7 +4,7 @@
 # Installs your SSH public key on the new user, then kicks off the full setup.
 #
 # Usage (run locally):
-#   bash bootstrap <user> <email> <host> [hostname]
+#   ./bootstrap <user> <email> <host> [hostname]
 #
 # One-liner (downloads to temp file first — required to avoid stdin conflict with curl pipe):
 #   curl -fsSL https://raw.githubusercontent.com/yangou/setup/main/bootstrap -o /tmp/bootstrap
@@ -44,7 +44,6 @@ echo -n "Root password for root@$HOST: "
 read -rs ROOT_PASS
 echo
 
-# Verify sshpass is available
 if ! command -v sshpass &>/dev/null; then
   echo "ERROR: sshpass is required. Install with: brew install sshpass"
   exit 1
@@ -53,10 +52,9 @@ fi
 SSH_OPTS="-o StrictHostKeyChecking=no -o PasswordAuthentication=yes -o PubkeyAuthentication=no"
 
 # ── Step 1: SSH as root (password) to create user and install pub key ─────────
+# Variables are expanded locally into the heredoc before being sent to the remote shell.
 echo "==> Connecting as root@$HOST to create user '$USERNAME'..."
-sshpass -p "$ROOT_PASS" ssh $SSH_OPTS root@"$HOST" \
-  USERNAME="$USERNAME" PUB_KEY="$PUB_KEY" \
-  'bash -s' <<'REMOTE'
+sshpass -p "$ROOT_PASS" ssh $SSH_OPTS root@"$HOST" bash <<REMOTE
 set -euo pipefail
 
 if ! id "$USERNAME" &>/dev/null; then
@@ -67,7 +65,6 @@ fi
 mkdir -p "/home/$USERNAME/.ssh"
 chmod 700 "/home/$USERNAME/.ssh"
 
-# Install the caller's public key (idempotent)
 if ! grep -qF "$PUB_KEY" "/home/$USERNAME/.ssh/authorized_keys" 2>/dev/null; then
   echo "$PUB_KEY" >> "/home/$USERNAME/.ssh/authorized_keys"
   echo "==> SSH public key added to $USERNAME"
@@ -75,7 +72,6 @@ fi
 chmod 600 "/home/$USERNAME/.ssh/authorized_keys"
 chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.ssh"
 
-# Grant passwordless sudo
 usermod -aG sudo "$USERNAME"
 echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$USERNAME"
 chmod 440 "/etc/sudoers.d/$USERNAME"
@@ -84,9 +80,7 @@ REMOTE
 
 # ── Step 2: SSH as user (key auth — no password) to clone setup and run install
 echo "==> Connecting as $USERNAME@$HOST to run setup..."
-ssh -o StrictHostKeyChecking=no "$USERNAME@$HOST" \
-  SETUP_REPO="$SETUP_REPO" USERNAME="$USERNAME" EMAIL="$EMAIL" HOSTNAME_ARG="$HOSTNAME_ARG" \
-  'bash -s' <<'REMOTE'
+ssh -o StrictHostKeyChecking=no "$USERNAME@$HOST" bash <<REMOTE
 set -euo pipefail
 
 mkdir -p ~/Workspace
