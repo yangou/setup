@@ -304,8 +304,9 @@ log_info "Configuring shell..."
 ensure_line "source $SCRIPT_DIR/zsh/.zprofile" ~/.zprofile
 ensure_line "source $SCRIPT_DIR/zsh/.zshrc" ~/.zshrc
 
-# p10k config — symlink so the repo is the single source of truth
+# p10k config — symlink from home to repo so both machines share one source of truth
 ln -sf "$SCRIPT_DIR/zsh/.p10k.zsh" ~/.p10k.zsh
+chmod 644 "$SCRIPT_DIR/zsh/.p10k.zsh"
 
 # Set zsh as default shell if it isn't already.
 # On Linux: use `usermod -s` via sudo — `chsh` requires an interactive password
