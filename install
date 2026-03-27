@@ -185,8 +185,17 @@ fi
 cd ~/maximum-awesome
 git pull
 sed_inplace 's/File\.exists?/File.exist?/g' Rakefile 2>/dev/null || true
-if command -v rake &>/dev/null; then
+if is_macos && command -v rake &>/dev/null; then
+  # rake sets up symlinks and installs deps via brew — macOS only
   rake 2>/dev/null || log_warn "rake failed - you may need to run it manually"
+elif is_linux; then
+  # On Linux, rake calls brew and aborts — create symlinks manually instead
+  ln -sf ~/maximum-awesome/vimrc          ~/.vimrc
+  ln -sf ~/maximum-awesome/vimrc.bundles  ~/.vimrc.bundles
+  mkdir -p ~/.vim
+  if ! [ -d ~/.vim/bundle/Vundle.vim ]; then
+    git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+  fi
 fi
 cd "$SCRIPT_DIR"
 
