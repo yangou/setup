@@ -158,7 +158,10 @@ require('lualine').setup({
   }
 })
 
-vim.cmd('source $HOME/.vim/plugin/whitespace/whitespace.vim')
+local ws = vim.fn.expand('$HOME/.vim/plugin/whitespace/whitespace.vim')
+if vim.fn.filereadable(ws) == 1 then
+  vim.cmd('source ' .. ws)
+end
 
 vim.cmd('source $HOME/.vimrc')
 

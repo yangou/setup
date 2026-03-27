@@ -173,6 +173,10 @@ elif is_linux; then
   if ! [ -d ~/.vim/bundle/Vundle.vim ]; then
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
   fi
+  # Set up whitespace plugin that rake normally handles on macOS
+  mkdir -p ~/.vim/plugin/whitespace
+  ln -sf ~/maximum-awesome/vim/plugin/whitespace/whitespace.vim \
+    ~/.vim/plugin/whitespace/whitespace.vim
 fi
 cd "$SCRIPT_DIR"
 
