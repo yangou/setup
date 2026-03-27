@@ -216,7 +216,9 @@ cd "$SCRIPT_DIR"
 ensure_line "source $SCRIPT_DIR/vim/.vimrc.bundles.local" ~/.vimrc.bundles.local
 ensure_line "source $SCRIPT_DIR/vim/.vimrc.local" ~/.vimrc.local
 
+log_info "Installing vim plugins (this may take a few minutes)..."
 vim -es -u ~/.vimrc +PluginInstall +qall 2>/dev/null || true
+log_info "Installing Go binaries for vim-go (this may take a few minutes)..."
 vim -es -u ~/.vimrc +GoInstallBinaries +qall 2>/dev/null || true
 
 if [ -d ~/.vim/bundle/coc.nvim ]; then
