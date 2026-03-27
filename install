@@ -248,6 +248,13 @@ if [ -d ~/.local/share/nvim/lazy/coc.nvim ]; then
   cd "$SCRIPT_DIR"
 fi
 
+# ── Claude Code (Linux: install via npm; macOS: installed via Brewfile cask) ──
+if is_linux && ! command -v claude &>/dev/null; then
+  log_info "Installing Claude Code..."
+  export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
+  npm install -g @anthropic-ai/claude-code 2>/dev/null || true
+fi
+
 # ── Claude Code plugins ────────────────────────────────────────────────────
 if command -v claude &>/dev/null; then
   log_info "Setting up Claude Code plugins..."
