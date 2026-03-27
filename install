@@ -203,11 +203,12 @@ ensure_line "source $SCRIPT_DIR/vim/.vimrc.bundles.local" ~/.vimrc.bundles.local
 ensure_line "source $SCRIPT_DIR/vim/.vimrc.local" ~/.vimrc.local
 
 vim -es -u ~/.vimrc +PluginInstall +qall 2>/dev/null || true
-# GoInstallBinaries downloads/compiles many Go tools — skip in non-interactive installs
-# Run manually afterwards: vim +GoInstallBinaries +qall
+vim -es -u ~/.vimrc +GoInstallBinaries +qall 2>/dev/null || true
 
 if [ -d ~/.vim/bundle/coc.nvim ]; then
   cd ~/.vim/bundle/coc.nvim
+  # Ensure npm is available via asdf shims
+  export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
   npm ci 2>/dev/null || true
   npm run build 2>/dev/null || true
   npm audit fix 2>/dev/null || true
@@ -222,10 +223,11 @@ if ! [ -e ~/.config/nvim ]; then
 fi
 
 nvim --headless -c "Lazy! install" -c "qa" 2>/dev/null || true
-# GoInstallBinaries skipped — run manually afterwards: nvim +GoInstallBinaries +qall
+nvim --headless -c "GoInstallBinaries" -c "qa" 2>/dev/null || true
 
 if [ -d ~/.local/share/nvim/lazy/coc.nvim ]; then
   cd ~/.local/share/nvim/lazy/coc.nvim
+  export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
   npm ci 2>/dev/null || true
   npm run build 2>/dev/null || true
   npm audit fix 2>/dev/null || true
