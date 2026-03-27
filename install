@@ -27,8 +27,8 @@ if [[ "$OS" == "unsupported" ]]; then
 fi
 
 # ── Linux root bootstrap: create user, then re-exec as that user ─────────────
-# When a fresh server is accessed as root, create the target user first,
-# copy root's SSH key and password, then hand off to that user.
+# Fallback for running install directly as root (normal path uses ./bootstrap
+# which sets up the user and SSHes in as them before calling install).
 if is_linux && [[ "$(id -u)" -eq 0 ]] && [[ "$USERNAME" != "root" ]]; then
   log_info "Running as root — setting up user '$USERNAME'..."
 
@@ -36,44 +36,6 @@ if is_linux && [[ "$(id -u)" -eq 0 ]] && [[ "$USERNAME" != "root" ]]; then
     useradd -m -s /bin/bash "$USERNAME"
     log_info "Created user $USERNAME"
   fi
-
-  # Copy root's authorized_keys so the user can SSH in with the same key
-  if [[ -f /root/.ssh/authorized_keys ]]; then
-    mkdir -p "/home/$USERNAME/.ssh"
-    cp /root/.ssh/authorized_keys "/home/$USERNAME/.ssh/authorized_keys"
-    chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.ssh"
-    chmod 700 "/home/$USERNAME/.ssh"
-    chmod 600 "/home/$USERNAME/.ssh/authorized_keys"
-    log_info "SSH authorized_keys copied to $USERNAME"
-  fi
-
-  # Copy root's password hash so the user can use the same password.
-  # Cloud providers often lock root's password (! or *) and use SSH keys only —
-  # in that case fall back to prompting for a password.
-  root_pass="$(getent shadow root | cut -d: -f2)"
-  if [[ -n "$root_pass" && "$root_pass" != "!" && "$root_pass" != "*" && "$root_pass" != "!!" ]]; then
-    usermod -p "$root_pass" "$USERNAME"
-    log_info "Root password copied to $USERNAME"
-  else
-    log_info "Root has no password set — please set a password for $USERNAME:"
-    passwd "$USERNAME"
-  fi
-
-  # Ensure SSH allows password authentication so the user can log in with a password
-  if grep -qE '^\s*PasswordAuthentication\s+no' /etc/ssh/sshd_config 2>/dev/null; then
-    sed_inplace 's/^\s*PasswordAuthentication\s\+no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-    log_info "Enabled PasswordAuthentication in sshd_config"
-  elif ! grep -qE '^\s*PasswordAuthentication' /etc/ssh/sshd_config 2>/dev/null; then
-    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
-    log_info "Added PasswordAuthentication yes to sshd_config"
-  fi
-  # Also check sshd_config.d drop-ins (Ubuntu 24.04 uses this)
-  dropin="/etc/ssh/sshd_config.d/60-cloudimg-settings.conf"
-  if [[ -f "$dropin" ]] && grep -qE '^\s*PasswordAuthentication\s+no' "$dropin"; then
-    sed_inplace 's/^\s*PasswordAuthentication\s\+no/PasswordAuthentication yes/' "$dropin"
-    log_info "Enabled PasswordAuthentication in $dropin"
-  fi
-  systemctl reload ssh 2>/dev/null || systemctl reload sshd 2>/dev/null || true
 
   # Grant passwordless sudo access (required for non-interactive installs)
   usermod -aG sudo "$USERNAME"
