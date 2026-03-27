@@ -15,7 +15,8 @@ elif [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
-# asdf (Linux git-clone install adds bin to PATH)
+# asdf (Linux git-clone install adds bin and shims to PATH)
+# Shims must be in PATH for tools like vim/coc.nvim to find node outside zsh sessions.
 if [[ -f "$HOME/.asdf/bin/asdf" ]]; then
-  export PATH="$HOME/.asdf/bin:$PATH"
+  export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
 fi
