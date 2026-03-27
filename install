@@ -202,8 +202,8 @@ cd "$SCRIPT_DIR"
 ensure_line "source $SCRIPT_DIR/vim/.vimrc.bundles.local" ~/.vimrc.bundles.local
 ensure_line "source $SCRIPT_DIR/vim/.vimrc.local" ~/.vimrc.local
 
-vim +PluginInstall +qall 2>/dev/null || true
-vim +GoInstallBinaries +qall 2>/dev/null || true
+vim -es -u ~/.vimrc +PluginInstall +qall 2>/dev/null || true
+vim -es -u ~/.vimrc +GoInstallBinaries +qall 2>/dev/null || true
 
 if [ -d ~/.vim/bundle/coc.nvim ]; then
   cd ~/.vim/bundle/coc.nvim
