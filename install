@@ -255,6 +255,9 @@ if is_linux && ! command -v claude &>/dev/null; then
   log_info "Installing Claude Code..."
   export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
   npm install -g @anthropic-ai/claude-code 2>/dev/null || true
+  # npm installs to ~/.npm-global/bin (set earlier via `npm config set prefix`)
+  # must update PATH now so the plugin section below can find `claude`
+  export PATH="$HOME/.npm-global/bin:$PATH"
 fi
 
 # ── Claude Code plugins ────────────────────────────────────────────────────
@@ -270,19 +273,35 @@ if command -v claude &>/dev/null; then
   claude plugin install everything-claude-code@everything-claude-code
   claude plugin install superpowers@superpowers-marketplace
   claude plugin install claude-hud@claude-hud
+
+  # claude-code-plugins (anthropics/claude-code marketplace)
+  claude plugin install ralph-wiggum@claude-code-plugins
+  claude plugin install frontend-design@claude-code-plugins
+  claude plugin install commit-commands@claude-code-plugins
+  claude plugin install security-guidance@claude-code-plugins
+  claude plugin install pr-review-toolkit@claude-code-plugins
+  claude plugin install feature-dev@claude-code-plugins
+  claude plugin install explanatory-output-style@claude-code-plugins
+  claude plugin install code-review@claude-code-plugins
+
+  # claude-plugins-official (anthropics/claude-plugins-official marketplace)
+  claude plugin install typescript-lsp@claude-plugins-official
+  claude plugin install hookify@claude-plugins-official
+  claude plugin install code-simplifier@claude-plugins-official
+  claude plugin install context7@claude-plugins-official
+  claude plugin install pyright-lsp@claude-plugins-official
+
+  # mgrep (mixedbread-ai/mgrep marketplace)
+  claude plugin install mgrep@Mixedbread-Grep
 else
   log_warn "claude not found; skipping Claude Code plugin setup"
 fi
 
 # ── Everything Claude Code rules ────────────────────────────────────────────
-mkdir -p ~/Workspace
-if ! [ -d ~/Workspace/everything-claude-code ]; then
-  git clone https://github.com/affaan-m/everything-claude-code.git ~/Workspace/everything-claude-code
-else
-  git -C ~/Workspace/everything-claude-code pull
-fi
-if [ -f ~/Workspace/everything-claude-code/install.sh ]; then
-  cd ~/Workspace/everything-claude-code
+# everything-claude-code lives as a git submodule at $SCRIPT_DIR/claude/everything-claude-code
+git -C "$SCRIPT_DIR" submodule update --init --remote claude/everything-claude-code 2>/dev/null || true
+if [ -f "$SCRIPT_DIR/claude/everything-claude-code/install.sh" ]; then
+  cd "$SCRIPT_DIR/claude/everything-claude-code"
   export PATH="$HOME/.asdf/shims:$HOME/.asdf/bin:$PATH"
   # Install the exact Node version it requires (from .tool-versions), if not already present
   if [ -f .tool-versions ]; then
@@ -293,7 +312,7 @@ if [ -f ~/Workspace/everything-claude-code/install.sh ]; then
     fi
   fi
   npm install 2>/dev/null || true
-  ./install.sh typescript golang python swift php
+  ./install.sh typescript golang python swift php cpp csharp java kotlin perl rust
   cd "$SCRIPT_DIR"
 fi
 
