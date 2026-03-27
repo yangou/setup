@@ -81,10 +81,11 @@ if is_linux && [[ "$(id -u)" -eq 0 ]] && [[ "$USERNAME" != "root" ]]; then
   chmod 440 "/etc/sudoers.d/$USERNAME"
   log_info "$USERNAME added to sudo group (NOPASSWD)"
 
-  # Copy setup repo into user's home if it's currently in root's home
+  # Always copy the fresh clone into user's home (overwrites any stale previous copy)
   TARGET_DIR="/home/$USERNAME/Workspace/setup"
   if [[ "$SCRIPT_DIR" != "$TARGET_DIR" ]]; then
     mkdir -p "/home/$USERNAME/Workspace"
+    rm -rf "$TARGET_DIR"
     cp -r "$SCRIPT_DIR" "$TARGET_DIR"
     chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/Workspace"
   fi
