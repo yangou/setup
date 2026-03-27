@@ -3,7 +3,8 @@
 # Cross-platform development environment bootstrap.
 # Supports: macOS (desktop & headless), Ubuntu/Debian (server & desktop).
 #
-# Usage: ./install <user> <email>
+# macOS:        ./install <user> <email>
+# Linux server: run ./bootstrap from your local machine instead (sets up SSH key auth first)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/platform.sh"
