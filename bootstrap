@@ -6,8 +6,9 @@
 # Usage (run locally):
 #   bash bootstrap <user> <email> <host> [hostname]
 #
-# Or as a one-liner (downloads and runs in a temp file to avoid stdin conflict):
-#   curl -fsSL https://raw.githubusercontent.com/yangou/setup/main/bootstrap -o /tmp/bootstrap && bash /tmp/bootstrap <user> <email> <host> [hostname]
+# One-liner (downloads to temp file first — required to avoid stdin conflict with curl pipe):
+#   curl -fsSL https://raw.githubusercontent.com/yangou/setup/main/bootstrap -o /tmp/bootstrap
+#   bash /tmp/bootstrap <user> <email> <host> [hostname]
 
 set -euo pipefail
 
@@ -38,9 +39,22 @@ if [[ -z "$PUB_KEY" ]]; then
   exit 1
 fi
 
-# ── Step 1: SSH as root to create user and install pub key ───────────────────
+# ── Prompt for root password (used only for the initial connection) ───────────
+echo -n "Root password for root@$HOST: "
+read -rs ROOT_PASS
+echo
+
+# Verify sshpass is available
+if ! command -v sshpass &>/dev/null; then
+  echo "ERROR: sshpass is required. Install with: brew install sshpass"
+  exit 1
+fi
+
+SSH_OPTS="-o StrictHostKeyChecking=no -o PasswordAuthentication=yes -o PubkeyAuthentication=no"
+
+# ── Step 1: SSH as root (password) to create user and install pub key ─────────
 echo "==> Connecting as root@$HOST to create user '$USERNAME'..."
-ssh -o StrictHostKeyChecking=no root@"$HOST" \
+sshpass -p "$ROOT_PASS" ssh $SSH_OPTS root@"$HOST" \
   USERNAME="$USERNAME" PUB_KEY="$PUB_KEY" \
   'bash -s' <<'REMOTE'
 set -euo pipefail
@@ -68,7 +82,7 @@ chmod 440 "/etc/sudoers.d/$USERNAME"
 echo "==> $USERNAME granted passwordless sudo"
 REMOTE
 
-# ── Step 2: SSH as user (key auth) to clone setup and run install ────────────
+# ── Step 2: SSH as user (key auth — no password) to clone setup and run install
 echo "==> Connecting as $USERNAME@$HOST to run setup..."
 ssh -o StrictHostKeyChecking=no "$USERNAME@$HOST" \
   SETUP_REPO="$SETUP_REPO" USERNAME="$USERNAME" EMAIL="$EMAIL" HOSTNAME_ARG="$HOSTNAME_ARG" \
