@@ -120,17 +120,14 @@ install_linux_packages() {
     helm
   )
 
-  # Filter out packages unavailable on this Ubuntu version
-  local available=()
+  # Install packages one-by-one so a single failure doesn't abort the rest
   for pkg in "${packages[@]}"; do
     if apt-cache show "$pkg" &>/dev/null 2>&1; then
-      available+=("$pkg")
+      _sudo apt-get install -y "$pkg" || log_warn "Failed to install: $pkg (continuing)"
     else
       log_warn "Package not available: $pkg (skipping)"
     fi
   done
-
-  _sudo apt-get install -y "${available[@]}"
 
   # Docker: add current user to docker group
   _sudo usermod -aG docker "$USER" 2>/dev/null || true
