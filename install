@@ -25,6 +25,50 @@ if [[ "$OS" == "unsupported" ]]; then
   exit 1
 fi
 
+# ── Linux root bootstrap: create user, then re-exec as that user ─────────────
+# When a fresh server is accessed as root, create the target user first,
+# copy root's SSH key and password, then hand off to that user.
+if is_linux && [[ "$(id -u)" -eq 0 ]] && [[ "$USERNAME" != "root" ]]; then
+  log_info "Running as root — setting up user '$USERNAME'..."
+
+  if ! id "$USERNAME" &>/dev/null; then
+    useradd -m -s /bin/bash "$USERNAME"
+    log_info "Created user $USERNAME"
+  fi
+
+  # Copy root's authorized_keys so the user can SSH in with the same key
+  if [[ -f /root/.ssh/authorized_keys ]]; then
+    mkdir -p "/home/$USERNAME/.ssh"
+    cp /root/.ssh/authorized_keys "/home/$USERNAME/.ssh/authorized_keys"
+    chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.ssh"
+    chmod 700 "/home/$USERNAME/.ssh"
+    chmod 600 "/home/$USERNAME/.ssh/authorized_keys"
+    log_info "SSH authorized_keys copied to $USERNAME"
+  fi
+
+  # Copy root's password hash so the user can use the same password
+  root_pass="$(getent shadow root | cut -d: -f2)"
+  if [[ -n "$root_pass" && "$root_pass" != "!" && "$root_pass" != "*" && "$root_pass" != "!!" ]]; then
+    usermod -p "$root_pass" "$USERNAME"
+    log_info "Root password copied to $USERNAME"
+  fi
+
+  # Grant sudo access
+  usermod -aG sudo "$USERNAME"
+  log_info "$USERNAME added to sudo group"
+
+  # Copy setup repo into user's home if it's currently in root's home
+  TARGET_DIR="/home/$USERNAME/Workspace/setup"
+  if [[ "$SCRIPT_DIR" != "$TARGET_DIR" ]]; then
+    mkdir -p "/home/$USERNAME/Workspace"
+    cp -r "$SCRIPT_DIR" "$TARGET_DIR"
+    chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/Workspace"
+  fi
+
+  log_info "Switching to $USERNAME — re-running install..."
+  exec su -l "$USERNAME" -c "bash '$TARGET_DIR/install' '$USERNAME' '$EMAIL'"
+fi
+
 # ── SSH ─────────────────────────────────────────────────────────────────────
 if ! [ -f ~/.ssh/id_rsa ]; then
   log_info "Generating SSH key..."
