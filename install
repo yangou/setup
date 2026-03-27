@@ -304,6 +304,9 @@ log_info "Configuring shell..."
 ensure_line "source $SCRIPT_DIR/zsh/.zprofile" ~/.zprofile
 ensure_line "source $SCRIPT_DIR/zsh/.zshrc" ~/.zshrc
 
+# p10k config — symlink so the repo is the single source of truth
+ln -sf "$SCRIPT_DIR/zsh/.p10k.zsh" ~/.p10k.zsh
+
 # Set zsh as default shell if it isn't already
 if [[ "$(basename "$SHELL")" != "zsh" ]]; then
   log_info "Setting zsh as default shell..."
