@@ -277,6 +277,7 @@ if command -v claude &>/dev/null; then
 
   # mgrep (mixedbread-ai/mgrep marketplace)
   claude plugin install mgrep@Mixedbread-Grep                      || log_warn "plugin install failed: mgrep"
+  claude plugin disable mgrep
 else
   log_warn "claude not found; skipping Claude Code plugin setup"
 fi
