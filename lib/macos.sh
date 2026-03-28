@@ -50,4 +50,30 @@ install_macos_packages() {
 
   # fzf key bindings and shell completion
   "$(brew --prefix)/opt/fzf/install" --all 2>/dev/null || true
+
+  # gke-gcloud-auth-plugin is required by kubectl to authenticate against GKE clusters.
+  # It ships as a gcloud SDK component, not a Homebrew formula, so it must be installed
+  # explicitly after the google-cloud-sdk cask is in place.
+  if command -v gcloud &>/dev/null; then
+    log_info "Installing gke-gcloud-auth-plugin..."
+    gcloud components install gke-gcloud-auth-plugin --quiet 2>/dev/null \
+      || log_warn "gke-gcloud-auth-plugin install failed (will need manual: gcloud components install gke-gcloud-auth-plugin)"
+
+    # gcloud CLI auth — required for gcloud commands (API enablement, GCS bucket management)
+    if ! gcloud auth list --format="value(account)" 2>/dev/null | grep -q .; then
+      log_info "Authenticating with gcloud (opens browser)..."
+      gcloud auth login --quiet || log_warn "gcloud auth login failed — run manually: gcloud auth login"
+    else
+      log_info "gcloud already authenticated ($(gcloud config get-value account 2>/dev/null))"
+    fi
+
+    # Application Default Credentials — required by Terraform's GCP provider
+    if ! gcloud auth application-default print-access-token >/dev/null 2>&1; then
+      log_info "Setting up Application Default Credentials (opens browser)..."
+      gcloud auth application-default login --quiet \
+        || log_warn "gcloud ADC login failed — run manually: gcloud auth application-default login"
+    else
+      log_info "gcloud Application Default Credentials already set"
+    fi
+  fi
 }
